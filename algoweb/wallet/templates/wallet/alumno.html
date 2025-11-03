@@ -1,0 +1,35 @@
+{% extends 'wallet/base.html' %}
+
+{% block title %}Alumnos Registrados{% endblock %}
+
+{% block content %}
+    <h2>Alumnos Registrados</h2>
+
+{% if alumnos %}
+    <table style="border-collapse:collapse;width: 100%;">
+        <thead>
+            <tr style="background:#f1f1f1; text-align:left;">
+                <th style="padding:8px;border:1px solid #ddd;">Nombre</th>
+                <th style="padding:8px;border:1px solid #ddd;">Correo</th>
+                <th style="padding:8px;border:1px solid #ddd;">Wallet</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for a in alumnos %}
+            <tr>
+                <td style="padding:8px;border:1px solid #ddd;">{{ a.nombre }}</td>
+                <td style="padding:8px;border:1px solid #ddd;">{{ a.email }}</td>
+                <td style="padding:8px;border:1px solid #ddd;">{{ a.student_wallet|default:'-' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No tienes alumnos registrados.</p>
+{% endif %}
+
+<p>
+    <a href="{% url 'agregar_alumno' %}" style="display:inline-block;padding:8px 12px;background:#e5eb34;color:#fff;border-radius:6px;text-decoration:none;">Agregar Alumno</a>
+</p>
+
+{% endblock %}
