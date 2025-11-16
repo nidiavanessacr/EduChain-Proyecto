@@ -445,3 +445,73 @@ def admin_estudiantes(request):
         "estudiantes": estudiantes,
     })
 
+# ======================================
+#  Ver docentes (admin)
+# ======================================
+
+@login_required
+def admin_docentes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    docentes = User.objects.filter(role="docente")
+
+    return render(request, "wallet/admin_docentes.html", {
+        "docentes": docentes
+    })
+
+# ======================================
+#  Ver estudiantes (admin)
+# ======================================
+
+@login_required
+def admin_estudiantes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    estudiantes = User.objects.filter(role="estudiante")
+
+    return render(request, "wallet/admin_estudiantes.html", {
+        "estudiantes": estudiantes
+    })
+
+# ======================================
+#  Agregar usuario: Docente o estudiante (admin)
+# ======================================
+
+@login_required
+def admin_agregar_usuario(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "wallet/admin_agregar_usuario.html", {
+                "error": "El usuario ya existe."
+            })
+
+        # Crear usuario
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            role=role
+        )
+
+        # Crear Wallet automática
+        Wallet.objects.create(
+            user=user,
+            address="ADDR-" + str(uuid.uuid4())[:12],
+            private_key="PRIV-" + str(uuid.uuid4())[:12]
+        )
+
+        messages.success(request, "Usuario creado correctamente.")
+        return redirect("dashboard_admin")
+
+    return render(request, "wallet/admin_agregar_usuario.html")
+
+
+

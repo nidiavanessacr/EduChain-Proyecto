@@ -3,135 +3,28 @@
 
 {% block content %}
 
-<style>
-  .table-container {
-    width: 85%;
-    margin: 0 auto;
-    background: #fff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  }
+<h2 style="text-align:center; color:#007bb5;">Docentes Registrados</h2>
 
-  h2 {
-    color: #007bb5;
-    text-align: center;
-    margin-bottom: 25px;
-  }
+<div class="card-grid" style="margin-top:20px;">
 
-  .search-bar {
-    width: 50%;
-    margin: 0 auto 20px;
-    display: block;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #aaa;
-    font-size: 16px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-  }
-
-  th, td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-
-  th {
-    background: #00a3e0;
-    color: white;
-  }
-
-  tr:hover {
-    background: #f1faff;
-  }
-
-  .btn-add {
-    background: #28a745;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    display: inline-block;
-    margin-bottom: 15px;
-  }
-
-  .btn-del {
-    background: #dd3333;
-    color: white;
-    padding: 7px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    text-decoration: none;
-  }
-
-  .no-results {
-    text-align: center;
-    font-size: 18px;
-    margin-top: 15px;
-    color: #666;
-  }
-</style>
-
-
-<div class="table-container">
-
-  <h2>📘 Lista de Docentes</h2>
-
-  <a href="{% url 'admin_agregar_usuario' %}" class="btn-add">➕ Agregar Docente</a>
-
-  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar docente...">
-
-  <table>
-    <thead>
-      <tr>
-        <th>Usuario</th>
-        <th>Email</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody id="tableBody">
-      {% for docente in docentes %}
-      <tr class="row">
-        <td>{{ docente.username }}</td>
-        <td>{{ docente.email }}</td>
-        <td>
-          <a onclick="return confirm('¿Eliminar docente {{ docente.username }}?')" 
-             href="{% url 'admin_eliminar_usuario' docente.id %}" 
-             class="btn-del">Eliminar</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  {% if docentes|length == 0 %}
-    <p class="no-results">No hay docentes registrados.</p>
-  {% endif %}
+  {% for d in docentes %}
+  <div class="card">
+      <div class="emoji">👩‍🏫</div>
+      <h3>{{ d.username }}</h3>
+      <p style="color:#333;">Rol: {{ d.role }}</p>
+  </div>
+  {% empty %}
+  <p>No hay docentes registrados.</p>
+  {% endfor %}
 
 </div>
 
-<script>
-  const searchInput = document.getElementById("searchInput");
-  const rows = document.querySelectorAll(".row");
-
-  searchInput.addEventListener("keyup", function () {
-    const term = this.value.toLowerCase();
-
-    rows.forEach(row => {
-      if (row.innerText.toLowerCase().includes(term)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  });
-</script>
+<br><br>
+<div style="text-align:center;">
+  <a href="{% url 'admin_agregar_usuario' %}"
+     style="background:#00a3e0; padding:12px; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">
+     Agregar Docente
+  </a>
+</div>
 
 {% endblock %}
