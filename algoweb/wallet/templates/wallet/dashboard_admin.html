@@ -2,104 +2,197 @@
 {% block title %}Panel Administrador{% endblock %}
 
 {% block content %}
-  <style>
-    .dashboard-container {
-      text-align: center;
-    }
 
-    .dashboard-header {
-      margin-bottom: 30px;
-    }
+<style>
+  .dashboard-container {
+    text-align: center;
+  }
 
-    .dashboard-header h2 {
-      color: #007bb5;
-      font-size: 26px;
-      margin-bottom: 10px;
-    }
+  .stats-box {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 30px;
+  }
 
-    .dashboard-header p {
-      color: #333;
-      font-size: 16px;
-    }
+  .stat {
+    background: #ffffff;
+    border-radius: 12px;
+    width: 200px;
+    padding: 20px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    font-weight: bold;
+  }
 
-    .card-grid {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+  .stat h3 {
+    font-size: 18px;
+    color: #007bb5;
+    margin-bottom: 5px;
+  }
 
-    .card {
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      width: 250px;
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  .stat p {
+    font-size: 22px;
+    margin: 0;
+    color: #444;
+  }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-    }
+  .search-container {
+    margin-bottom: 25px;
+  }
 
-    .card h3 {
-      color: #007bb5;
-      margin-bottom: 10px;
-    }
+  .search-container input {
+    width: 50%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    font-size: 16px;
+  }
 
-    .card a {
-      display: block;
-      background: #00a3e0;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      padding: 10px;
-      font-weight: bold;
-      transition: background 0.2s;
-      margin-top: 10px;
-    }
+  .card-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-top: 20px;
+  }
 
-    .card a:hover {
-      background: #0085ba;
-    }
+  .card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    width: 260px;
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
 
-    .card .emoji {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-  </style>
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 14px rgba(0,0,0,0.25);
+  }
 
-  <div class="dashboard-container">
-    <div class="dashboard-header">
-      <h2>Bienvenido, {{ user.username }} (admin)</h2>
-      <p>Desde este panel puedes gestionar las actividades y revisar a docentes y estudiantes.</p>
+  .card h3 {
+    color: #007bb5;
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+
+  .card a {
+    display: block;
+    background: #00a3e0;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: bold;
+    transition: background 0.2s;
+    margin-top: 10px;
+  }
+
+  .card a:hover {
+    background: #0085ba;
+  }
+
+  .emoji {
+    font-size: 45px;
+    margin-bottom: 10px;
+  }
+
+  /* Ocultar con fade */
+  .hidden {
+    display: none;
+  }
+
+</style>
+
+<div class="dashboard-container">
+
+  <!-- TÍTULO -->
+  <h2 style="color:#007bb5; font-size:28px;">Bienvenido, {{ user.username }} (admin)</h2>
+  <p style="margin-bottom:35px;">Panel general de administración del sistema EduChain.</p>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="stats-box">
+    <div class="stat">
+      <h3>Docentes</h3>
+      <p>{{ total_docentes }}</p>
     </div>
 
-    <div class="card-grid">
+    <div class="stat">
+      <h3>Estudiantes</h3>
+      <p>{{ total_estudiantes }}</p>
+    </div>
 
-      <!-- Ver docentes -->
-      <div class="card">
-        <div class="emoji">🧑‍🏫</div>
-        <h3>Docentes</h3>
-        <a href="{% url 'dashboard_admin' %}">Ver Docentes</a>
-      </div>
+    <div class="stat">
+      <h3>Actividades</h3>
+      <p>{{ total_actividades }}</p>
+    </div>
 
-      <!-- Ver estudiantes -->
-      <div class="card">
-        <div class="emoji">🎓</div>
-        <h3>Estudiantes</h3>
-        <a href="{% url 'dashboard_admin' %}">Ver Estudiantes</a>
-      </div>
-
-      <!-- Crear actividad -->
-      <div class="card">
-        <div class="emoji">📝</div>
-        <h3>Crear Actividad</h3>
-        <a href="{% url 'crear_actividad' %}">Crear</a>
-      </div>
-
+    <div class="stat">
+      <h3>Asignadas</h3>
+      <p>{{ total_asignadas }}</p>
     </div>
   </div>
+
+  <!-- BUSCADOR -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Buscar docentes, estudiantes o actividades...">
+  </div>
+
+  <!-- CARDS -->
+  <div class="card-grid" id="cardGrid">
+
+    <!-- DOCENTES -->
+    <div class="card card-item" data-name="docentes profesores maestros">
+      <div class="emoji">🧑‍🏫</div>
+      <h3>Docentes</h3>
+      <a href="{% url 'admin_docentes' %}">Ver Docentes</a>
+      <a href="{% url 'admin_agregar_usuario' %}" style="background:#28a745;">Agregar Docente</a>
+    </div>
+
+    <!-- ESTUDIANTES -->
+    <div class="card card-item" data-name="estudiantes alumnos escolar">
+      <div class="emoji">🎓</div>
+      <h3>Estudiantes</h3>
+      <a href="{% url 'admin_estudiantes' %}">Ver Estudiantes</a>
+      <a href="{% url 'admin_agregar_usuario' %}" style="background:#28a745;">Agregar Estudiante</a>
+    </div>
+
+    <!-- CREAR ACTIVIDAD -->
+    <div class="card card-item" data-name="crear actividad tarea nueva">
+      <div class="emoji">📝</div>
+      <h3>Crear Actividad</h3>
+      <a href="{% url 'admin_crear_actividad' %}">Crear Nueva</a>
+    </div>
+
+    <!-- ASIGNAR ACTIVIDAD -->
+    <div class="card card-item" data-name="asignar actividad enviar tarea">
+      <div class="emoji">📤</div>
+      <h3>Asignar Actividad</h3>
+      <a href="{% url 'admin_asignar_actividad' %}">Asignar</a>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- JS: Buscador -->
+<script>
+  const input = document.getElementById("searchInput");
+  const cards = document.querySelectorAll(".card-item");
+
+  input.addEventListener("keyup", function () {
+    const term = input.value.toLowerCase();
+
+    cards.forEach(card => {
+      const keywords = card.getAttribute("data-name");
+      if (keywords.toLowerCase().includes(term)) {
+        card.classList.remove("hidden");
+      } else {
+        card.classList.add("hidden");
+      }
+    });
+  });
+</script>
+
 {% endblock %}

@@ -1,0 +1,36 @@
+{% extends "wallet/base.html" %}
+
+{% block title %}Asignar Actividad{% endblock %}
+
+{% block content %}
+<h2 style="text-align:center; color:#007bb5;">Asignar Actividad a Docente</h2>
+
+<div style="width:40%; margin:auto; background:#fff; padding:25px; border-radius:10px;
+            box-shadow:0 3px 6px rgba(0,0,0,0.2);">
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <label>Actividad:</label>
+    <select name="actividad" required style="width:100%; padding:10px; margin-bottom:15px;">
+      {% for a in actividades %}
+        <option value="{{ a.id }}">{{ a.titulo }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Docente:</label>
+    <select name="docente" required style="width:100%; padding:10px; margin-bottom:20px;">
+      {% for d in docentes %}
+        <option value="{{ d.id }}">{{ d.username }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit"
+            style="background:#00a3e0; width:100%; padding:12px; color:white;
+                   border:none; border-radius:5px; font-weight:bold;">
+      Asignar
+    </button>
+  </form>
+
+</div>
+{% endblock %}

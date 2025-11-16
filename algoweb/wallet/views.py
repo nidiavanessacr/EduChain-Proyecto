@@ -250,3 +250,198 @@ def transacciones(request):
     return render(request, "wallet/transacciones.html", {
         "historial": historial
     })
+
+# ======================================
+#  VER DOCENTES
+# ======================================
+
+@login_required
+def admin_ver_docentes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    docentes = User.objects.filter(role="docente")
+    return render(request, "wallet/admin_docentes.html", {"docentes": docentes})
+
+# ======================================
+#  VER ESTUDIANTES
+# ======================================
+
+@login_required
+def admin_ver_estudiantes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    estudiantes = User.objects.filter(role="estudiante")
+    return render(request, "wallet/admin_estudiantes.html", {"estudiantes": estudiantes})
+
+# ======================================
+#  Agregar usuario (admin crea docente o estudiante)
+# ======================================
+
+@login_required
+def admin_agregar_usuario(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "wallet/admin_agregar_usuario.html", {
+                "error": "El usuario ya existe."
+            })
+
+        nuevo = User.objects.create_user(username=username, password=password, role=role)
+
+        Wallet.objects.create(
+            user=nuevo,
+            address="ADDR-" + str(uuid.uuid4())[:12],
+            private_key="PRIV-" + str(uuid.uuid4())[:12]
+        )
+
+        messages.success(request, f"{role} creado correctamente.")
+        return redirect("dashboard_admin")
+
+    return render(request, "wallet/admin_agregar_usuario.html")
+
+# ======================================
+#  Eliminar usuario
+# ======================================
+
+@login_required
+def admin_eliminar_usuario(request, user_id):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    usuario = get_object_or_404(User, id=user_id)
+    usuario.delete()
+    messages.success(request, "Usuario eliminado correctamente.")
+    return redirect("dashboard_admin")
+
+# ======================================
+#  CREACIÓN DE ACTIVIDAD (ADMIN)
+# ======================================
+
+@login_required
+def admin_crear_actividad(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    if request.method == "POST":
+        titulo = request.POST.get("titulo")
+        descripcion = request.POST.get("descripcion")
+        fecha = request.POST.get("fecha")
+        recompensa = request.POST.get("recompensa")
+
+        actividad = Actividad.objects.create(
+            titulo=titulo,
+            descripcion=descripcion,
+            fecha_entrega=fecha,
+        )
+
+        actividad.recompensa = recompensa
+        actividad.save()
+
+        messages.success(request, "Actividad creada correctamente.")
+        return redirect("dashboard_admin")
+
+    return render(request, "wallet/admin_crear_actividad.html")
+
+# ======================================
+#  Asignar actividad + recompensa a un docente
+# ======================================
+
+@login_required
+def admin_asignar_actividad(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    actividades = Actividad.objects.all()
+    docentes = User.objects.filter(role="docente")
+
+    if request.method == "POST":
+        act_id = request.POST.get("actividad")
+        doc_id = request.POST.get("docente")
+
+        actividad = Actividad.objects.get(id=act_id)
+        docente = User.objects.get(id=doc_id)
+
+        actividad.docente = docente
+        actividad.save()
+
+        messages.success(request, "Actividad asignada correctamente.")
+        return redirect("dashboard_admin")
+
+    return render(request, "wallet/admin_asignar_actividad.html", {
+        "actividades": actividades,
+        "docentes": docentes
+    })
+
+# ======================================
+#  Lógica del rol de administrador completada
+# ======================================
+
+@login_required
+def dashboard_admin(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    context = {
+        "total_docentes": User.objects.filter(role="docente").count(),
+        "total_estudiantes": User.objects.filter(role="estudiante").count(),
+        "total_actividades": Actividad.objects.count(),
+        "total_asignadas": ActividadAsignada.objects.count(),
+    }
+
+    return render(request, "wallet/dashboard_admin.html", context)
+
+# ======================================
+#  Ver gestión de docentes (admin)
+# ======================================
+
+@login_required
+def admin_docentes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    docentes = User.objects.filter(role="docente")
+
+    return render(request, "wallet/admin_docentes.html", {
+        "docentes": docentes,
+    })
+
+
+@login_required
+def admin_eliminar_usuario(request, user_id):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    user = get_object_or_404(User, id=user_id)
+
+    # Seguridad: no permitir borrar otros admins
+    if user.role == "admin":
+        messages.error(request, "No puedes eliminar administradores.")
+        return redirect("admin_docentes")
+
+    user.delete()
+    messages.success(request, "Docente eliminado correctamente.")
+    return redirect("admin_docentes")
+
+# ======================================
+#  Ver gestión de docentes2 (admin)
+# ======================================
+
+@login_required
+def admin_estudiantes(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    estudiantes = User.objects.filter(role="estudiante")
+
+    return render(request, "wallet/admin_estudiantes.html", {
+        "estudiantes": estudiantes,
+    })
+

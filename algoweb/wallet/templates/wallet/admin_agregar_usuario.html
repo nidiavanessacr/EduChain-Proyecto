@@ -1,0 +1,41 @@
+{% extends "wallet/base.html" %}
+
+{% block title %}Agregar Usuario{% endblock %}
+
+{% block content %}
+<h2 style="text-align:center; color:#007bb5;">Agregar Usuario</h2>
+
+<div style="width:40%; margin:auto; background:#fff; padding:25px; border-radius:10px;
+            box-shadow:0 3px 6px rgba(0,0,0,0.2);">
+
+  {% if error %}
+    <p style="color:red; text-align:center; font-weight:bold;">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <label>Usuario:</label>
+    <input type="text" name="username" required 
+           style="width:100%; padding:10px; margin-bottom:10px;">
+
+    <label>Contraseña:</label>
+    <input type="password" name="password" required 
+           style="width:100%; padding:10px; margin-bottom:10px;">
+
+    <label>Rol:</label>
+    <select name="role" required style="width:100%; padding:10px; margin-bottom:10px;">
+      <option value="">Selecciona un rol</option>
+      <option value="docente">Docente</option>
+      <option value="estudiante">Estudiante</option>
+    </select>
+
+    <button type="submit" 
+            style="background:#00a3e0; width:100%; padding:12px; color:white;
+                   border:none; border-radius:5px; font-weight:bold;">
+      Crear Usuario
+    </button>
+  </form>
+
+</div>
+{% endblock %}

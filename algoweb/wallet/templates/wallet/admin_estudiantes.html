@@ -1,0 +1,107 @@
+{% extends "wallet/base.html" %}
+{% block title %}Estudiantes{% endblock %}
+
+{% block content %}
+
+<style>
+  .table-container {
+    width: 85%;
+    margin: 0 auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  h2 {
+    color: #007bb5;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .search-bar {
+    width: 50%;
+    margin: 0 auto 20px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    font-size: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background: #00a3e0;
+    color: white;
+  }
+
+  tr:hover {
+    background: #f1faff;
+  }
+
+  .btn-del {
+    background: #dd3333;
+    color: white;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+  }
+</style>
+
+<div class="table-container">
+
+  <h2>🎓 Lista de Estudiantes</h2>
+
+  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar estudiante...">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody id="tableBody">
+      {% for est in estudiantes %}
+      <tr class="row">
+        <td>{{ est.username }}</td>
+        <td>{{ est.email }}</td>
+        <td>
+          <a onclick="return confirm('¿Eliminar estudiante {{ est.username }}?')" 
+             href="{% url 'admin_eliminar_usuario' est.id %}"
+             class="btn-del">Eliminar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+</div>
+
+<script>
+  const searchInput = document.getElementById("searchInput");
+  const rows = document.querySelectorAll(".row");
+
+  searchInput.addEventListener("keyup", function () {
+    const term = this.value.toLowerCase();
+
+    rows.forEach(row => {
+      row.style.display = row.innerText.toLowerCase().includes(term) ? "" : "none";
+    });
+  });
+</script>
+
+{% endblock %}
