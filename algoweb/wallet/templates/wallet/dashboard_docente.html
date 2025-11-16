@@ -73,50 +73,27 @@
 
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h2>Bienvenido, {{ user.username }} (Docente)</h2>
-      <p>En este panel puedes gestionar tus alumnos, crear wallets y revisar tus transacciones.</p>
+      <h2>Bienvenido, {{ user.username }} (docente)</h2>
+      <p>Aquí puedes crear y asignar actividades a tus estudiantes.</p>
     </div>
 
     <div class="card-grid">
+
+      <!-- Crear actividad -->
       <div class="card">
-        <div class="emoji">🧑‍🏫</div>
-        <h3>Registrar Alumno</h3>
-        <a href="{% url 'agregar_alumno' %}">Agregar Alumno</a>
+        <div class="emoji">📝</div>
+        <h3>Crear Actividad</h3>
+        <a href="{% url 'crear_actividad' %}">Crear</a>
       </div>
 
+      <!-- Ver actividades creadas -->
       <div class="card">
-        <div class="emoji">📋</div>
-        <h3>Lista de Alumnos</h3>
-        <a href="{% url 'alumnos' %}">Ver Lista</a>
+        <div class="emoji">📚</div>
+        <h3>Mis Actividades</h3>
+        <a href="{% url 'dashboard_docente' %}">Ver actividades</a>
       </div>
 
-      <div class="card">
-        <div class="emoji">💳</div>
-        <h3>Registrar Wallet</h3>
-        <a href="{% url 'registrar_wallet' %}">Registrar Wallet</a>
-      </div>
-
-      <div class="card">
-        <div class="emoji">👛</div>
-        <h3>Mi Wallet</h3>
-        <a href="{% url 'mi_wallet' %}">Ver Mi Wallet</a>
-      </div>
-
-      <div class="card">
-        <div class="emoji">💸</div>
-        <h3>Transacciones</h3>
-        <a href="{% url 'transacciones' %}">Ver Transacciones</a>
-      </div>
-
-      <!-- 🆕 Nueva tarjeta: Asignar Actividades -->
-      <div class="card">
-        <div class="emoji">🪄</div>
-        <h3>Asignar Actividades</h3>
-        <a href="{% url 'asignar_actividad' %}">Asignar a Alumnos</a>
-      </div>
     </div>
   </div>
 {% endblock %}
-
-
 

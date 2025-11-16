@@ -41,7 +41,7 @@
 
     .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
 
     .card h3 {
@@ -73,42 +73,31 @@
 
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h2>Bienvenido, {{ user.username }} (Administrador)</h2>
-      <p>Desde este panel puedes gestionar todo el sistema <strong>EduChain</strong>.</p>
+      <h2>Bienvenido, {{ user.username }} (admin)</h2>
+      <p>Desde este panel puedes gestionar las actividades y revisar a docentes y estudiantes.</p>
     </div>
 
     <div class="card-grid">
 
+      <!-- Ver docentes -->
       <div class="card">
         <div class="emoji">🧑‍🏫</div>
-        <h3>Gestión de Alumnos</h3>
-        <a href="{% url 'alumnos' %}">Ver Alumnos</a>
-        <a href="{% url 'agregar_alumno' %}">Agregar Alumno</a>
+        <h3>Docentes</h3>
+        <a href="{% url 'dashboard_admin' %}">Ver Docentes</a>
       </div>
 
+      <!-- Ver estudiantes -->
       <div class="card">
-        <div class="emoji">💳</div>
-        <h3>Wallet</h3>
-        <a href="{% url 'registrar_wallet' %}">Registrar Wallet</a>
-        <a href="{% url 'mi_wallet' %}">Ver Mi Wallet</a>
+        <div class="emoji">🎓</div>
+        <h3>Estudiantes</h3>
+        <a href="{% url 'dashboard_admin' %}">Ver Estudiantes</a>
       </div>
 
+      <!-- Crear actividad -->
       <div class="card">
-        <div class="emoji">💸</div>
-        <h3>Transacciones</h3>
-        <a href="{% url 'transacciones' %}">Consultar Transacciones</a>
-      </div>
-
-      <div class="card">
-        <div class="emoji">📘</div>
-        <h3>Gestión de Actividades</h3>
-        <a href="{% url 'crear_actividad' %}">Crear Actividad</a>
-      </div>
-
-      <div class="card">
-        <div class="emoji">ℹ️</div>
-        <h3>Información del Sistema</h3>
-        <a href="{% url 'info' %}">Ver Información</a>
+        <div class="emoji">📝</div>
+        <h3>Crear Actividad</h3>
+        <a href="{% url 'crear_actividad' %}">Crear</a>
       </div>
 
     </div>

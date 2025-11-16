@@ -57,7 +57,7 @@
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     }
 
-    /* 🎨 Estilos de dashboard y tarjetas centralizados */
+    /* 🎨 Estilos de dashboard */
     .dashboard-container { text-align: center; }
     .dashboard-header { margin-bottom: 30px; }
     .dashboard-header h2 { color: #007bb5; font-size: 26px; margin-bottom: 10px; }
@@ -106,23 +106,15 @@
     </div>
 
     <nav>
-      {% if user.role == "Administrador" %}
+      {% if user.role == "admin" %}
         <a href="{% url 'dashboard_admin' %}">Dashboard Admin</a>
-        <a href="{% url 'alumnos' %}">Alumnos</a>
-        <a href="{% url 'agregar_alumno' %}">Agregar Alumno</a>
-        <a href="{% url 'index' %}">Consulta Saldo</a>
 
-      {% elif user.role == "Docente" %}
+      {% elif user.role == "docente" %}
         <a href="{% url 'dashboard_docente' %}">Dashboard Docente</a>
-        <a href="{% url 'alumnos' %}">Alumnos</a>
-        <a href="{% url 'agregar_alumno' %}">Agregar Alumno</a>
-        <a href="{% url 'index' %}">Consulta Saldo</a>
+        <a href="{% url 'crear_actividad' %}">Crear Actividad</a>
 
-      {% elif user.role == "Estudiante" %}
+      {% elif user.role == "estudiante" %}
         <a href="{% url 'dashboard_estudiante' %}">Panel Estudiante</a>
-        <a href="{% url 'envio' %}">Envíos</a>
-        <a href="{% url 'index' %}">Consulta Saldo</a>
-        <a href="{% url 'mi_wallet' %}">Mi Wallet</a>
       {% endif %}
 
       <a href="{% url 'logout' %}">Cerrar sesión</a>
@@ -136,7 +128,6 @@
   </div>
 </body>
 </html>
-
 
 
 

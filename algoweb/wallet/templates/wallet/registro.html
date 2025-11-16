@@ -95,6 +95,7 @@
 
     <form method="POST">
       {% csrf_token %}
+
       <label>Usuario</label>
       <input type="text" name="username" placeholder="Nombre de usuario" required>
 
@@ -102,11 +103,11 @@
       <input type="password" name="password" placeholder="••••••••" required>
 
       <label>Rol</label>
-      <select name="rol" required>
+      <select name="role" required>
         <option value="">Selecciona un rol</option>
-        <option value="Administrador">Administrador</option>
-        <option value="Docente">Docente</option>
-        <option value="Estudiante">Estudiante</option>
+        <option value="admin">Administrador</option>
+        <option value="docente">Docente</option>
+        <option value="estudiante">Estudiante</option>
       </select>
 
       <button type="submit">Registrarse</button>
@@ -119,3 +120,4 @@
 
 </body>
 </html>
+
