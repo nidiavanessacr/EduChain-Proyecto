@@ -2,98 +2,83 @@
 {% block title %}Panel Docente{% endblock %}
 
 {% block content %}
-  <style>
-    .dashboard-container {
-      text-align: center;
-    }
+<style>
+  .dashboard-container { text-align: center; }
+  .dashboard-header { margin-bottom: 30px; }
+  .dashboard-header h2 { color: #007bb5; font-size: 26px; margin-bottom: 10px; }
+  .dashboard-header p { color: #333; font-size: 16px; }
 
-    .dashboard-header {
-      margin-bottom: 30px;
-    }
+  .card-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
 
-    .dashboard-header h2 {
-      color: #007bb5;
-      font-size: 26px;
-      margin-bottom: 10px;
-    }
+  .card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    width: 270px;
+    padding: 25px;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s;
+  }
 
-    .dashboard-header p {
-      color: #333;
-      font-size: 16px;
-    }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  }
 
-    .card-grid {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+  .card h3 { color: #007bb5; margin-bottom: 12px; font-size: 20px; }
 
-    .card {
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      width: 250px;
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  .card a {
+    display: block;
+    background: #00a3e0;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: bold;
+    transition: background .2s;
+    margin-top: 10px;
+  }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-    }
+  .card a:hover { background: #0085ba; }
 
-    .card h3 {
-      color: #007bb5;
-      margin-bottom: 10px;
-    }
+  .card .emoji { font-size: 45px; margin-bottom: 10px; }
+</style>
 
-    .card a {
-      display: block;
-      background: #00a3e0;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      padding: 10px;
-      font-weight: bold;
-      transition: background 0.2s;
-      margin-top: 10px;
-    }
+<div class="dashboard-container">
 
-    .card a:hover {
-      background: #0085ba;
-    }
-
-    .card .emoji {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-  </style>
-
-  <div class="dashboard-container">
-    <div class="dashboard-header">
-      <h2>Bienvenido, {{ user.username }} (docente)</h2>
-      <p>Aquí puedes crear y asignar actividades a tus estudiantes.</p>
-    </div>
-
-    <div class="card-grid">
-
-      <!-- Crear actividad -->
-      <div class="card">
-        <div class="emoji">📝</div>
-        <h3>Crear Actividad</h3>
-        <a href="{% url 'crear_actividad' %}">Crear</a>
-      </div>
-
-      <!-- Ver actividades creadas -->
-      <div class="card">
-        <div class="emoji">📚</div>
-        <h3>Mis Actividades</h3>
-        <a href="{% url 'dashboard_docente' %}">Ver actividades</a>
-      </div>
-
-    </div>
+  <div class="dashboard-header">
+    <h2>Bienvenido, {{ user.username }} (Docente)</h2>
+    <p>Aquí puedes gestionar las actividades asignadas por el administrador.</p>
   </div>
-{% endblock %}
 
+  <div class="card-grid">
+
+    <!-- Actividades asignadas -->
+    <div class="card">
+      <div class="emoji">📚</div>
+      <h3>Mis Actividades</h3>
+      <a href="{% url 'docente_actividades' %}">Ver actividades</a>
+    </div>
+
+    <!-- Revisar entregas (redirige a las actividades para elegir una) -->
+    <div class="card">
+      <div class="emoji">📋</div>
+      <h3>Revisar Entregas</h3>
+      <a href="{% url 'docente_actividades' %}">Seleccionar actividad</a>
+    </div>
+
+    <!-- Wallet -->
+    <div class="card">
+      <div class="emoji">💰</div>
+      <h3>Mi Wallet</h3>
+      <a href="{% url 'mi_wallet' %}">Consultar saldo</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

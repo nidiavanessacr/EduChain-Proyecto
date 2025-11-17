@@ -1,0 +1,144 @@
+{% extends "wallet/base.html" %}
+{% block title %}Revisar Entregas{% endblock %}
+
+{% block content %}
+
+<style>
+    .title {
+        text-align: center;
+        color: #007bb5;
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: bold;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 20px;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .card {
+        background: white;
+        width: 350px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        transition: .2s ease;
+        text-align: center;
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 14px rgba(0,0,0,0.25);
+    }
+
+    .emoji {
+        font-size: 45px; 
+        margin-bottom: 8px;
+    }
+
+    .label {
+        font-weight: bold;
+        color: #333;
+        margin-top: 8px;
+    }
+
+    .status {
+        font-size: 16px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        display: inline-block;
+        margin: 10px 0;
+    }
+
+    .pendiente {
+        background: #ffe6a1;
+        color: #a57300;
+    }
+
+    .entregada {
+        background: #c8f7c5;
+        color: #2d7a2e;
+    }
+
+    .finalizada {
+        background: #b3d9ff;
+        color: #004b93;
+    }
+
+    .btn-primary {
+        display: block;
+        background: #00a3e0;
+        padding: 10px;
+        color: white;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        margin-top: 12px;
+        transition: background .2s;
+    }
+
+    .btn-primary:hover {
+        background: #0085ba;
+    }
+
+    .btn-finish {
+        background: #28a745;
+    }
+
+    .btn-finish:hover {
+        background: #1e7e34;
+    }
+</style>
+
+<h2 class="title">📋 Revisar Entregas</h2>
+
+<h3 class="subtitle">{{ actividad.titulo }}</h3>
+
+<div class="cards-container">
+
+    {% for asignacion in asignaciones %}
+    <div class="card">
+
+        <div class="emoji">👤</div>
+        <h3 style="color:#007bb5;">{{ asignacion.estudiante.username }}</h3>
+
+        <p class="label">Estado:</p>
+
+        {% if asignacion.finalizada %}
+            <span class="status finalizada">Actividad finalizada</span>
+        {% elif asignacion.entregada %}
+            <span class="status entregada">Entrega recibida</span>
+        {% else %}
+            <span class="status pendiente">Pendiente de entrega</span>
+        {% endif %}
+
+        <p class="label">Fecha límite:</p>
+        <p>{{ actividad.fecha_entrega|date:"d \\de F \\de Y" }}</p>
+
+        {% if asignacion.entregada and not asignacion.finalizada %}
+        <a class="btn-primary btn-finish"
+           href="{% url 'docente_marcar_finalizada' asignacion.id %}">
+            Marcar como finalizada
+        </a>
+        {% endif %}
+
+    </div>
+    {% empty %}
+    <p style="text-align:center; color:#666; font-size:18px;">
+        No hay estudiantes asignados a esta actividad.
+    </p>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

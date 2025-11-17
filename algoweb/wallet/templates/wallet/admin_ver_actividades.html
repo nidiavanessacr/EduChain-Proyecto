@@ -1,146 +1,165 @@
 {% extends "wallet/base.html" %}
-{% block title %}Actividades creadas{% endblock %}
+{% block title %}Actividades creadas y asignadas{% endblock %}
 
 {% block content %}
 
 <style>
-  .container {
-    width: 90%;
-    margin: auto;
-    margin-top: 30px;
-  }
+    .container {
+        width: 90%;
+        max-width: 1100px;
+        margin: auto;
+        padding: 25px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 
-  h2 {
-    text-align: center;
-    color: #007bb5;
-    margin-bottom: 25px;
-  }
+    h2 {
+        text-align: center;
+        color: #007bb5;
+        margin-bottom: 25px;
+        font-size: 28px;
+    }
 
-  .search-bar {
-    width: 50%;
-    margin: 0 auto 25px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #aaa;
-    font-size: 16px;
-    display: block;
-  }
+    .search-bar {
+        width: 60%;
+        margin: 0 auto 25px;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #bbb;
+        font-size: 16px;
+    }
 
-  .card-grid {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 25px;
-  }
+    .grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
 
-  .card {
-    width: 330px;
-    background: #fff;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-    text-align: center;
-    transition: .25s;
-  }
+    .card {
+        width: 300px;
+        background: #f9f9f9;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: 0.2s ease;
+    }
 
-  .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.25);
-  }
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+    }
 
-  .emoji {
-    font-size: 42px;
-    margin-bottom: 10px;
-  }
+    .emoji {
+        font-size: 55px;
+        margin-bottom: 10px;
+    }
 
-  .card h3 {
-    color: #007bb5;
-    margin-bottom: 10px;
-    font-size: 20px;
-  }
+    .card h3 {
+        color: #007bb5;
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
 
-  .info-text {
-    color: #333;
-    font-size: 15px;
-    margin-bottom: 6px;
-  }
+    .label {
+        font-weight: bold;
+        color: #333;
+        margin-top: 10px;
+    }
 
-  .badge-reward {
-    background: #0069a3;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 15px;
-    margin-top: 12px;
-    display: inline-block;
-  }
+    .value {
+        color: #555;
+        margin-bottom: 8px;
+    }
 
-  .assigned {
-    background: #00a3e0;
-    padding: 10px;
-    color: white;
-    border-radius: 6px;
-    margin-top: 14px;
-    font-weight: bold;
-  }
+    .btn {
+        display: block;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-edit { background: #00a3e0; }
+    .btn-delete { background: #ff4747; }
+    .btn-status { background: #0085ba; }
+
 </style>
 
 <div class="container">
 
-  <h2>📋 Actividades creadas y asignadas</h2>
+    <h2>📋 Actividades creadas y asignadas</h2>
 
-  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar por título o docente...">
+    <input type="text" id="searchInput" class="search-bar"
+           placeholder="Buscar por título o docente...">
 
-  <div class="card-grid" id="cardGrid">
+    <div class="grid" id="activityGrid">
 
-    {% for act in actividades %}
-      <div class="card card-item" data-name="{{ act.titulo }} {{ act.docente.username }}">
-        
-        <div class="emoji">📝</div>
+        {% for actividad in actividades %}
+        <div class="card activity-card"
+             data-name="{{ actividad.titulo }} {{ actividad.docente.username }}">
 
-        <h3>{{ act.titulo }}</h3>
+            <div class="emoji">📝</div>
 
-        <p class="info-text"><strong>Descripción:</strong><br>{{ act.descripcion }}</p>
+            <h3>{{ actividad.titulo }}</h3>
 
-        <p class="info-text"><strong>Fecha de entrega:</strong><br>{{ act.fecha_entrega }}</p>
+            <div class="label">Descripción:</div>
+            <div class="value">{{ actividad.descripcion }}</div>
 
-        <p class="info-text">
-          <strong>Docente asignado:</strong><br>
-          {% if act.docente %}
-            {{ act.docente.username }}
-          {% else %}
-            <span style="color: red;">Sin asignar</span>
-          {% endif %}
+            <div class="label">Fecha de entrega:</div>
+            <div class="value">
+                {% if actividad.fecha_entrega %}
+                    {{ actividad.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}
+                {% else %}
+                    No definida
+                {% endif %}
+            </div>
+
+            <div class="label">Recompensa:</div>
+            <div class="value">{{ actividad.recompensa }} ALGOs</div>
+
+            <div class="label">Docente asignado:</div>
+            <div class="value">
+                {% if actividad.docente %}
+                    {{ actividad.docente.username }}
+                {% else %}
+                    Sin asignar
+                {% endif %}
+            </div>
+
+            <a href="{% url 'admin_editar_actividad' actividad.id %}" class="btn btn-edit">✏ Editar</a>
+
+            <a href="{% url 'admin_eliminar_actividad' actividad.id %}"
+               class="btn btn-delete"
+               onclick="return confirm('¿Eliminar esta actividad?');">
+               🗑 Eliminar
+            </a>
+
+        </div>
+        {% empty %}
+        <p style="text-align:center; margin-top:20px; font-size:18px;">
+            No hay actividades creadas.
         </p>
+        {% endfor %}
 
-        <span class="badge-reward">
-          💰 Recompensa: {{ act.recompensa }} ALGOs
-        </span>
-
-        {% if act.docente %}
-        <p class="assigned">Asignada</p>
-        {% endif %}
-
-      </div>
-    {% empty %}
-      <p style="text-align:center;">No hay actividades creadas.</p>
-    {% endfor %}
-
-  </div>
+    </div>
 </div>
 
 <script>
-  const input = document.getElementById("searchInput");
-  const cards = document.querySelectorAll(".card-item");
+    const input = document.getElementById("searchInput");
+    const cards = document.querySelectorAll(".activity-card");
 
-  input.addEventListener("keyup", () => {
-    const term = input.value.toLowerCase();
-    cards.forEach(card => {
-      const keywords = card.dataset.name;
-      card.style.display = keywords.toLowerCase().includes(term) ? "block" : "none";
+    input.addEventListener("keyup", () => {
+        const term = input.value.toLowerCase();
+        cards.forEach(card => {
+            const keywords = card.dataset.name.toLowerCase();
+            card.style.display = keywords.includes(term) ? "block" : "none";
+        });
     });
-  });
 </script>
 
 {% endblock %}

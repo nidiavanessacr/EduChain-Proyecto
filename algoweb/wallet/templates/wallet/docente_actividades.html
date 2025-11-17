@@ -1,0 +1,109 @@
+{% extends "wallet/base.html" %}
+{% block title %}Mis Actividades{% endblock %}
+
+{% block content %}
+
+<style>
+    .title {
+        text-align: center;
+        color: #007bb5;
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: bold;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .card {
+        background: white;
+        width: 320px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        transition: .2s ease;
+        text-align: center;
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 14px rgba(0,0,0,0.25);
+    }
+
+    .emoji {
+        font-size: 45px; 
+        margin-bottom: 8px;
+    }
+
+    .btn-primary {
+        display: block;
+        background: #00a3e0;
+        padding: 10px;
+        color: white;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        margin-top: 12px;
+        transition: background .2s;
+    }
+
+    .btn-primary:hover {
+        background: #0085ba;
+    }
+
+    .label {
+        font-weight: bold;
+        color: #333;
+        margin-top: 8px;
+    }
+</style>
+
+<h2 class="title">📘 Mis Actividades Asignadas</h2>
+
+<div class="cards-container">
+
+    {% for act in actividades %}
+    <div class="card">
+        <div class="emoji">📄</div>
+
+        <h3 style="color:#007bb5;">{{ act.titulo }}</h3>
+
+        <p class="label">Descripción:</p>
+        <p>{{ act.descripcion }}</p>
+
+        <p class="label">Fecha de entrega:</p>
+        <p>{{ act.fecha_entrega|date:"d \\de F \\de Y" }}</p>
+
+        <p class="label">Recompensa:</p>
+        <p>{{ act.recompensa }} ALGOs</p>
+
+        <p class="label">Alumnos asignados:</p>
+        <p>
+            {% with act.actividadasignada_set.all as alumnos %}
+                {% if alumnos %}
+                    {{ alumnos|length }} estudiantes
+                {% else %}
+                    Ningún estudiante aún
+                {% endif %}
+            {% endwith %}
+        </p>
+
+        <!-- BOTÓN que sí sirve (lleva al docente a revisar entregas) -->
+        <a class="btn-primary"
+           href="{% url 'docente_revisar_entregas' act.id %}">
+           Revisar entregas
+        </a>
+    </div>
+    {% empty %}
+    <p style="text-align:center; color:#666; font-size:18px;">
+        No tienes actividades asignadas por el administrador.
+    </p>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

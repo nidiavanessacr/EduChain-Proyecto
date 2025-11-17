@@ -9,13 +9,14 @@ from .models import User, Wallet, Actividad, ActividadAsignada
 import uuid
 from algosdk.v2client import algod
 
+
+
 # ======================================
-#  CONFIGURACIÓN DEL CLIENTE ALGOD
+#  CONFIG ALGOD
 # ======================================
-ALGOD_CLIENT = algod.AlgodClient(
-    "",  # token vacío para Algonode (TestNet)
-    "https://testnet-api.algonode.cloud"
-)
+ALGOD_CLIENT = algod.AlgodClient("", "https://testnet-api.algonode.cloud")
+
+
 
 # ======================================
 #  REGISTRO
@@ -49,6 +50,7 @@ def registro(request):
     return render(request, "wallet/registro.html")
 
 
+
 # ======================================
 #  LOGIN
 # ======================================
@@ -79,12 +81,14 @@ def login_view(request):
     return render(request, "wallet/login.html")
 
 
+
 # ======================================
-#  LOGOUT
+# LOGOUT
 # ======================================
 def logout_view(request):
     logout(request)
     return redirect("login")
+
 
 
 # ======================================
@@ -104,295 +108,29 @@ def dashboard_admin(request):
     return render(request, "wallet/dashboard_admin.html", context)
 
 
+
 # ======================================
-#  VER DOCENTES
+#  ADMIN: GESTIÓN DE USUARIOS
 # ======================================
 @login_required
 def admin_docentes(request):
     if request.user.role != "admin":
         return redirect("login")
 
-    docentes = User.objects.filter(role="docente")
-    return render(request, "wallet/admin_docentes.html", {"docentes": docentes})
-
-
-# ======================================
-#  VER ESTUDIANTES
-# ======================================
-@login_required
-def admin_estudiantes(request):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    estudiantes = User.objects.filter(role="estudiante")
-    return render(request, "wallet/admin_estudiantes.html", {"estudiantes": estudiantes})
-
-
-# ======================================
-#  AGREGAR USUARIO (ADMIN)
-# ======================================
-@login_required
-def admin_agregar_usuario(request):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        role = request.POST.get("role")
-
-        if User.objects.filter(username=username).exists():
-            return render(request, "wallet/admin_agregar_usuario.html", {
-                "error": "El usuario ya existe."
-            })
-
-        user = User.objects.create_user(username=username, password=password, role=role)
-
-        Wallet.objects.create(
-            user=user,
-            address="ADDR-" + str(uuid.uuid4())[:12],
-            private_key="PRIV-" + str(uuid.uuid4())[:12]
-        )
-
-        messages.success(request, f"{role.capitalize()} creado correctamente.")
-        return redirect("dashboard_admin")
-
-    return render(request, "wallet/admin_agregar_usuario.html")
-
-
-# ======================================
-#  ELIMINAR USUARIO (ADMIN)
-# ======================================
-@login_required
-def admin_eliminar_usuario(request, user_id):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    usuario = get_object_or_404(User, id=user_id)
-
-    if usuario.role == "admin":
-        messages.error(request, "No puedes eliminar administradores.")
-        return redirect("dashboard_admin")
-
-    usuario.delete()
-    messages.success(request, "Usuario eliminado correctamente.")
-    return redirect("dashboard_admin")
-
-
-# ======================================
-#  CREAR ACTIVIDAD ADMIN
-# ======================================
-@login_required
-def admin_crear_actividad(request):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    if request.method == "POST":
-        titulo = request.POST.get("titulo")
-        descripcion = request.POST.get("descripcion")
-        fecha = request.POST.get("fecha")
-        recompensa = request.POST.get("recompensa")
-
-        actividad = Actividad.objects.create(
-            titulo=titulo,
-            descripcion=descripcion,
-            fecha_entrega=fecha,
-        )
-
-        actividad.recompensa = recompensa
-        actividad.save()
-
-        messages.success(request, "Actividad creada exitosamente.")
-        return redirect("dashboard_admin")
-
-    return render(request, "wallet/admin_crear_actividad.html")
-
-
-# ======================================
-#  ASIGNAR ACTIVIDAD A DOCENTE (ADMIN)
-# ======================================
-@login_required
-def admin_asignar_actividad(request):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    actividades = Actividad.objects.all()
-    docentes = User.objects.filter(role="docente")
-
-    if request.method == "POST":
-        act_id = request.POST.get("actividad")
-        doc_id = request.POST.get("docente")
-
-        actividad = Actividad.objects.get(id=act_id)
-        docente = User.objects.get(id=doc_id)
-
-        actividad.docente = docente
-        actividad.save()
-
-        messages.success(request, "Actividad asignada correctamente.")
-        return redirect("dashboard_admin")
-
-    return render(request, "wallet/admin_asignar_actividad.html", {
-        "actividades": actividades,
-        "docentes": docentes
+    return render(request, "wallet/admin_docentes.html", {
+        "docentes": User.objects.filter(role="docente")
     })
 
-
-# ======================================
-#  DASHBOARD DOCENTE
-# ======================================
-@login_required
-def dashboard_docente(request):
-    if request.user.role != "docente":
-        return redirect("login")
-
-    actividades = Actividad.objects.filter(docente=request.user)
-    return render(request, "wallet/dashboard_docente.html", {"actividades": actividades})
-
-
-# ======================================
-#  CREAR ACTIVIDAD DOCENTE
-# ======================================
-@login_required
-def crear_actividad(request):
-    if request.user.role != "docente":
-        return redirect("login")
-
-    if request.method == "POST":
-        titulo = request.POST.get("titulo")
-        descripcion = request.POST.get("descripcion")
-        fecha = request.POST.get("fecha")
-
-        Actividad.objects.create(
-            titulo=titulo,
-            descripcion=descripcion,
-            fecha_entrega=fecha,
-            docente=request.user
-        )
-
-        messages.success(request, "Actividad creada correctamente.")
-        return redirect("dashboard_docente")
-
-    return render(request, "wallet/crear_actividad.html")
-
-
-# ======================================
-#  ASIGNAR A ESTUDIANTES (DOCENTE)
-# ======================================
-@login_required
-def asignar_actividad(request, actividad_id):
-    if request.user.role != "docente":
-        return redirect("login")
-
-    actividad = get_object_or_404(Actividad, id=actividad_id)
-    estudiantes = User.objects.filter(role="estudiante")
-
-    if request.method == "POST":
-        ids = request.POST.getlist("estudiantes")
-
-        for est_id in ids:
-            estudiante = User.objects.get(id=est_id)
-
-            ActividadAsignada.objects.get_or_create(
-                actividad=actividad,
-                estudiante=estudiante
-            )
-
-        messages.success(request, "Actividad asignada exitosamente.")
-        return redirect("dashboard_docente")
-
-    return render(request, "wallet/asignar_actividad.html", {
-        "actividad": actividad,
-        "estudiantes": estudiantes
-    })
-
-
-# ======================================
-#  DASHBOARD ESTUDIANTE
-# ======================================
-@login_required
-def dashboard_estudiante(request):
-    if request.user.role != "estudiante":
-        return redirect("login")
-
-    actividades = ActividadAsignada.objects.filter(estudiante=request.user)
-
-    return render(request, "wallet/dashboard_estudiante.html", {
-        "actividades": actividades
-    })
-
-
-# ======================================
-#  CONSULTAR SALDO EN TESTNET
-# ======================================
-@login_required
-def get_balance(request):
-    address = request.GET.get("address")
-
-    if not address:
-        return JsonResponse({"error": "No se proporcionó una dirección"}, status=400)
-
-    try:
-        info = ALGOD_CLIENT.account_info(address)
-        balance = info.get("amount", 0) / 1_000_000
-        return JsonResponse({"balance": balance})
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
-
-
-# ======================================
-#  PÁGINA DE CONSULTA DE SALDO
-# ======================================
-@login_required
-def envio(request):
-    return render(request, "wallet/envio.html")
-
-
-# ======================================
-#  MI WALLET
-# ======================================
-@login_required
-def mi_wallet(request):
-    wallet = Wallet.objects.filter(user=request.user).first()
-
-    return render(request, "wallet/mi_wallet.html", {"wallet": wallet})
-
-
-# ======================================
-#  HISTORIAL (AÚN SIN IMPLEMENTACIÓN BLOCKCHAIN)
-# ======================================
-@login_required
-def transacciones(request):
-    return render(request, "wallet/transacciones.html", {"historial": []})
-
-# ======================================
-#  ADMIN_DOCENTES
-# ======================================
-
-@login_required
-def admin_docentes(request):
-    if request.user.role != "admin":
-        return redirect("login")
-
-    docentes = User.objects.filter(role="docente")
-    return render(request, "wallet/admin_docentes.html", {"docentes": docentes})
-
-# ======================================
-#  ADMIN_ESTUDIANTES
-# ======================================
 
 @login_required
 def admin_estudiantes(request):
     if request.user.role != "admin":
         return redirect("login")
 
-    estudiantes = User.objects.filter(role="estudiante")
-    return render(request, "wallet/admin_estudiantes.html", {"estudiantes": estudiantes})
+    return render(request, "wallet/admin_estudiantes.html", {
+        "estudiantes": User.objects.filter(role="estudiante")
+    })
 
-# ======================================
-#  ADMIN_AGREGAR_USUARIO
-# ======================================
 
 @login_required
 def admin_agregar_usuario(request):
@@ -422,9 +160,7 @@ def admin_agregar_usuario(request):
 
     return render(request, "wallet/admin_agregar_usuario.html")
 
-# ======================================
-#  ADMIN_ELIMINAR_USUARIO
-# ======================================
+
 
 @login_required
 def admin_eliminar_usuario(request, user_id):
@@ -441,10 +177,11 @@ def admin_eliminar_usuario(request, user_id):
     messages.success(request, "Usuario eliminado correctamente.")
     return redirect("dashboard_admin")
 
-# ======================================
-#  ADMIN_CREAR_ACTIVIDAD
-# ======================================
 
+
+# ======================================
+#  ADMIN: ACTIVIDADES
+# ======================================
 @login_required
 def admin_crear_actividad(request):
     if request.user.role != "admin":
@@ -453,26 +190,29 @@ def admin_crear_actividad(request):
     if request.method == "POST":
         titulo = request.POST.get("titulo")
         descripcion = request.POST.get("descripcion")
-        fecha = request.POST.get("fecha")
+        fecha = request.POST.get("fecha")  # dd/mm/aaaa
         recompensa = request.POST.get("recompensa")
 
-        actividad = Actividad.objects.create(
+        try:
+            d, m, y = fecha.split("/")
+            fecha_convertida = f"{y}-{m}-{d}"
+        except:
+            messages.error(request, "Formato de fecha inválido. Usa dd/mm/aaaa.")
+            return redirect("admin_crear_actividad")
+
+        Actividad.objects.create(
             titulo=titulo,
             descripcion=descripcion,
-            fecha_entrega=fecha
+            fecha_entrega=fecha_convertida,
+            recompensa=recompensa
         )
 
-        actividad.recompensa = recompensa
-        actividad.save()
-
-        messages.success(request, "Actividad creada correctamente.")
+        messages.success(request, "Actividad creada exitosamente.")
         return redirect("dashboard_admin")
 
     return render(request, "wallet/admin_crear_actividad.html")
 
-# ======================================
-#  ADMIN_ASIGNAR_ACTIVIDAD
-# ======================================
+
 
 @login_required
 def admin_asignar_actividad(request):
@@ -500,17 +240,179 @@ def admin_asignar_actividad(request):
         "docentes": docentes
     })
 
-# ======================================
-#  ADMIN_VER_ACTIVIDAD_ASIGNADA
-# ======================================
+
 
 @login_required
 def admin_ver_actividades(request):
     if request.user.role != "admin":
         return redirect("login")
 
-    actividades = Actividad.objects.all().select_related("docente")
+    actividades = Actividad.objects.select_related("docente").all()
 
     return render(request, "wallet/admin_ver_actividades.html", {
+        "actividades": actividades
+    })
+
+
+
+@login_required
+def admin_editar_actividad(request, id):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    actividad = get_object_or_404(Actividad, id=id)
+
+    if request.method == "POST":
+        actividad.titulo = request.POST.get("titulo")
+        actividad.descripcion = request.POST.get("descripcion")
+        fecha = request.POST.get("fecha")
+
+        try:
+            d, m, y = fecha.split("/")
+            actividad.fecha_entrega = f"{y}-{m}-{d}"
+        except:
+            messages.error(request, "Error: usa dd/mm/aaaa.")
+            return redirect("admin_editar_actividad", id=id)
+
+        actividad.recompensa = request.POST.get("recompensa")
+        actividad.save()
+
+        messages.success(request, "Actividad actualizada.")
+        return redirect("admin_ver_actividades")
+
+    return render(request, "wallet/admin_editar_actividad.html", {"actividad": actividad})
+
+
+
+@login_required
+def admin_eliminar_actividad(request, id):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    actividad = get_object_or_404(Actividad, id=id)
+    actividad.delete()
+
+    messages.success(request, "Actividad eliminada.")
+    return redirect("admin_ver_actividades")
+
+
+
+# ======================================
+#  DASHBOARD DOCENTE
+# ======================================
+@login_required
+def dashboard_docente(request):
+    if request.user.role != "docente":
+        return redirect("login")
+
+    return render(request, "wallet/dashboard_docente.html")
+
+
+
+# ======================================
+#  DOCENTE: MIS ACTIVIDADES
+# ======================================
+@login_required
+def docente_actividades(request):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividades = Actividad.objects.filter(docente=request.user)
+
+    return render(request, "wallet/docente_actividades.html", {
+        "actividades": actividades
+    })
+
+
+
+# ======================================
+#  DOCENTE: REVISAR ENTREGAS
+# ======================================
+@login_required
+def docente_revisar_entregas(request, actividad_id):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividad = get_object_or_404(Actividad, id=actividad_id, docente=request.user)
+    asignaciones = ActividadAsignada.objects.filter(actividad=actividad)
+
+    return render(request, "wallet/docente_revisar_entregas.html", {
+        "actividad": actividad,
+        "asignaciones": asignaciones
+    })
+
+
+
+# ======================================
+#  DOCENTE: MARCAR FINALIZADA
+# ======================================
+@login_required
+def docente_marcar_finalizada(request, asignacion_id):
+    asignacion = get_object_or_404(
+        ActividadAsignada,
+        id=asignacion_id,
+        actividad__docente=request.user
+    )
+
+    return render(request, "wallet/docente_marcar_finalizada.html", {
+        "asignacion": asignacion
+    })
+
+
+
+@login_required
+def docente_marcar_finalizada_confirmar(request, asignacion_id):
+    asignacion = get_object_or_404(
+        ActividadAsignada,
+        id=asignacion_id,
+        actividad__docente=request.user
+    )
+
+    asignacion.finalizada = True
+    asignacion.save()
+
+    messages.success(request, f"Entrega finalizada para {asignacion.estudiante.username}.")
+
+    return redirect("docente_revisar_entregas", actividad_id=asignacion.actividad.id)
+
+
+
+# ======================================
+#  WALLET
+# ======================================
+@login_required
+def mi_wallet(request):
+    wallet = Wallet.objects.filter(user=request.user).first()
+    return render(request, "wallet/mi_wallet.html", {"wallet": wallet})
+
+
+
+@login_required
+def get_balance(request):
+    address = request.GET.get("address")
+
+    if not address:
+        return JsonResponse({"error": "No se proporcionó dirección"}, status=400)
+
+    try:
+        info = ALGOD_CLIENT.account_info(address)
+        balance = info.get("amount", 0) / 1_000_000
+        return JsonResponse({"balance": balance})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+
+# ======================================
+#  DASHBOARD ESTUDIANTE
+# ======================================
+@login_required
+def dashboard_estudiante(request):
+    if request.user.role != "estudiante":
+        return redirect("login")
+
+    actividades = ActividadAsignada.objects.filter(estudiante=request.user)
+
+    return render(request, "wallet/dashboard_estudiante.html", {
         "actividades": actividades
     })

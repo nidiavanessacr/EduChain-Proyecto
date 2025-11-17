@@ -32,9 +32,42 @@ urlpatterns = [
     path('dashboard/admin/asignar_actividad/', views.admin_asignar_actividad, name='admin_asignar_actividad'),
     path('dashboard/admin/actividades/', views.admin_ver_actividades, name='admin_ver_actividades'),
 
+    path('dashboard/admin/actividad/<int:id>/editar/', 
+         views.admin_editar_actividad, 
+         name='admin_editar_actividad'),
+
+    path('dashboard/admin/actividad/<int:id>/eliminar/', 
+         views.admin_eliminar_actividad, 
+         name='admin_eliminar_actividad'),
+
     # ======================================
-    # 📚 Docente: Crear y asignar actividades propias
+    # 📘 Docente: Actividades del docente
     # ======================================
-    path('crear_actividad/', views.crear_actividad, name='crear_actividad'),
-    path('asignar_actividad/<int:actividad_id>/', views.asignar_actividad, name='asignar_actividad'),
+    path('dashboard/docente/actividades/', 
+         views.docente_actividades, 
+         name='docente_actividades'),
+
+    # ======================================
+    # 📋 Docente: Revisar una actividad específica
+    # ======================================
+    path('dashboard/docente/actividad/<int:actividad_id>/revisar/', 
+         views.docente_revisar_entregas, 
+         name='docente_revisar_entregas'),
+
+    # ======================================
+    # ✅ Docente: Marcar entrega finalizada
+    # ======================================
+    path('dashboard/docente/marcar_finalizada/<int:asignacion_id>/', 
+         views.docente_marcar_finalizada, 
+         name='docente_marcar_finalizada'),
+
+    path('dashboard/docente/marcar_finalizada/<int:asignacion_id>/confirmar/', 
+         views.docente_marcar_finalizada_confirmar, 
+         name='docente_marcar_finalizada_confirmar'),
+
+    # ======================================
+    # 💰 Wallet
+    # ======================================
+    path('miwallet/', views.mi_wallet, name='mi_wallet'),
+    path('get_balance/', views.get_balance, name='get_balance'),
 ]
