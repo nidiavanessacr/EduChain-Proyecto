@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from algosdk import account
 
 
 # -----------------------------
@@ -15,7 +18,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLES, default='estudiante')
 
     def save(self, *args, **kwargs):
-        # Asegurar que los superusers siempre sean admin
+        # Los superusers siempre serán administradores
         if self.is_superuser:
             self.role = "admin"
         super().save(*args, **kwargs)
@@ -37,7 +40,24 @@ class Wallet(models.Model):
 
 
 # -----------------------------
+# AUTO-CREAR WALLET AL CREAR USUARIO
+# -----------------------------
+@receiver(post_save, sender=User)
+def crear_wallet_usuario(sender, instance, created, **kwargs):
+    if created:
+        # Generar cuenta Algorand
+        private_key, address = account.generate_account()
+
+        Wallet.objects.create(
+            user=instance,
+            address=address,
+            private_key=private_key
+        )
+
+
+# -----------------------------
 # ALUMNO EXTRA MODEL
+# (puede quedar si lo sigues usando)
 # -----------------------------
 class Alumno(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,14 +86,13 @@ class Transaccion(models.Model):
 
 
 # -----------------------------
-# ACTIVIDADES CREADAS (DOCENTE O ADMIN)
+# ACTIVIDADES CREADAS
 # -----------------------------
 class Actividad(models.Model):
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     fecha_entrega = models.DateField(null=True, blank=True)
 
-    # NUEVO CAMPO: recompensa en ALGOs
     recompensa = models.IntegerField(default=0)
 
     docente = models.ForeignKey(
@@ -104,7 +123,7 @@ class ActividadAsignada(models.Model):
     entregada = models.BooleanField(default=False)
     finalizada = models.BooleanField(default=False)
 
-    # CAMPOS NUEVOS NECESARIOS
+    # NUEVOS CAMPOS DE EVIDENCIA
     evidencia_texto = models.TextField(null=True, blank=True)
     evidencia_link = models.URLField(null=True, blank=True)
     fecha_entrega_real = models.DateTimeField(null=True, blank=True)
