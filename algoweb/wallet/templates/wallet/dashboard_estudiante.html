@@ -1,10 +1,11 @@
 {% extends "wallet/base.html" %}
 {% load static %}
 
-{% block title %}Panel estudiante{% endblock %}
+{% block title %}Panel Estudiante{% endblock %}
 
 {% block content %}
 <div class="dashboard-container" style="text-align: center;">
+
     <h2 style="color: #007bb5; font-size: 26px;">Panel del estudiante</h2>
     <p style="margin-bottom: 30px;">
         Bienvenido al sistema de recompensas académicas basado en blockchain.
@@ -13,45 +14,76 @@
     <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
 
         <!-- ACTIVIDADES ASIGNADAS -->
-        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 10px;
-                    width: 250px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+        <div style="
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        ">
             <h3 style="color: #007bb5;">Actividades Asignadas</h3>
-            <p>Consulta las actividades que tu docente te ha asignado.</p>
+            <p>Consulta las actividades que te han sido asignadas.</p>
 
-            <!-- Ya tienes dashboard_estudiante mostrando la lista -->
             <a href="{% url 'dashboard_estudiante' %}"
-               style="background-color: #007bb5; color: white; padding: 10px 15px;
-                      border-radius: 5px; text-decoration: none;">
+               style="
+                    background-color: #007bb5;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    text-decoration: none;
+               ">
                 Ver
             </a>
         </div>
 
         <!-- ENTREGAR ACTIVIDAD -->
-        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 10px;
-                    width: 250px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+        <div style="
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        ">
             <h3 style="color: #007bb5;">Entregar Actividad</h3>
-            <p>Envía tus entregas y recibe ALGOs como recompensa.</p>
+            <p>Envía tus entregas y recibe recompensas.</p>
 
-            <!-- Este link apunta a tu sistema de envíos -->
-            <a href="{% url 'mi_wallet' %}"
-               style="background-color: #007bb5; color: white; padding: 10px 15px;
-                      border-radius: 5px; text-decoration: none;">
+            <!-- Ruta placeholder hasta integrar módulo de entregas -->
+            <a href="#"
+               style="
+                    background-color: #007bb5;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    text-decoration: none;
+               ">
                 Ir
             </a>
         </div>
 
         <!-- HISTORIAL -->
-        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 10px;
-                    width: 250px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+        <div style="
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        ">
             <h3 style="color: #007bb5;">Historial de Recompensas</h3>
-            <p>Consulta tus transacciones realizadas y recompensas obtenidas.</p>
+            <p>Consulta tus transacciones y recompensas obtenidas.</p>
 
-            <a href="{% url 'transacciones' %}"
-               style="background-color: #007bb5; color: white; padding: 10px 15px;
-                      border-radius: 5px; text-decoration: none;">
+            <!-- Si no existe esta ruta, la dejamos por ahora -->
+            <a href="#"
+               style="
+                    background-color: #007bb5;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    text-decoration: none;
+               ">
                 Ver
             </a>
         </div>
+
     </div>
 </div>
 {% endblock %}

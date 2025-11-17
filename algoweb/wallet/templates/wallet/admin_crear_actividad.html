@@ -1,5 +1,4 @@
 {% extends "wallet/base.html" %}
-
 {% block title %}Crear Actividad{% endblock %}
 
 {% block content %}
@@ -21,15 +20,13 @@
     <input type="date" name="fecha" style="width:100%; padding:10px; margin-bottom:10px;">
 
     <label>Recompensa (ALGOs):</label>
-    <input type="number" name="recompensa" min="0" required 
-           style="width:100%; padding:10px; margin-bottom:20px;">
+    <input type="number" name="recompensa" min="0" required style="width:100%; padding:10px; margin-bottom:20px;">
 
-    <button type="submit" 
+    <button type="submit"
             style="background:#00a3e0; padding:12px; width:100%; color:white;
                    border:none; border-radius:5px; font-weight:bold;">
       Crear Actividad
     </button>
   </form>
 </div>
-
 {% endblock %}

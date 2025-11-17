@@ -1,0 +1,146 @@
+{% extends "wallet/base.html" %}
+{% block title %}Actividades creadas{% endblock %}
+
+{% block content %}
+
+<style>
+  .container {
+    width: 90%;
+    margin: auto;
+    margin-top: 30px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #007bb5;
+    margin-bottom: 25px;
+  }
+
+  .search-bar {
+    width: 50%;
+    margin: 0 auto 25px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    font-size: 16px;
+    display: block;
+  }
+
+  .card-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+  }
+
+  .card {
+    width: 330px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: .25s;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+  }
+
+  .emoji {
+    font-size: 42px;
+    margin-bottom: 10px;
+  }
+
+  .card h3 {
+    color: #007bb5;
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+
+  .info-text {
+    color: #333;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .badge-reward {
+    background: #0069a3;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    margin-top: 12px;
+    display: inline-block;
+  }
+
+  .assigned {
+    background: #00a3e0;
+    padding: 10px;
+    color: white;
+    border-radius: 6px;
+    margin-top: 14px;
+    font-weight: bold;
+  }
+</style>
+
+<div class="container">
+
+  <h2>📋 Actividades creadas y asignadas</h2>
+
+  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar por título o docente...">
+
+  <div class="card-grid" id="cardGrid">
+
+    {% for act in actividades %}
+      <div class="card card-item" data-name="{{ act.titulo }} {{ act.docente.username }}">
+        
+        <div class="emoji">📝</div>
+
+        <h3>{{ act.titulo }}</h3>
+
+        <p class="info-text"><strong>Descripción:</strong><br>{{ act.descripcion }}</p>
+
+        <p class="info-text"><strong>Fecha de entrega:</strong><br>{{ act.fecha_entrega }}</p>
+
+        <p class="info-text">
+          <strong>Docente asignado:</strong><br>
+          {% if act.docente %}
+            {{ act.docente.username }}
+          {% else %}
+            <span style="color: red;">Sin asignar</span>
+          {% endif %}
+        </p>
+
+        <span class="badge-reward">
+          💰 Recompensa: {{ act.recompensa }} ALGOs
+        </span>
+
+        {% if act.docente %}
+        <p class="assigned">Asignada</p>
+        {% endif %}
+
+      </div>
+    {% empty %}
+      <p style="text-align:center;">No hay actividades creadas.</p>
+    {% endfor %}
+
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById("searchInput");
+  const cards = document.querySelectorAll(".card-item");
+
+  input.addEventListener("keyup", () => {
+    const term = input.value.toLowerCase();
+    cards.forEach(card => {
+      const keywords = card.dataset.name;
+      card.style.display = keywords.toLowerCase().includes(term) ? "block" : "none";
+    });
+  });
+</script>
+
+{% endblock %}

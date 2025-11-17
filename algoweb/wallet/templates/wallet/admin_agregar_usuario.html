@@ -1,5 +1,4 @@
 {% extends "wallet/base.html" %}
-
 {% block title %}Agregar Usuario{% endblock %}
 
 {% block content %}
@@ -16,26 +15,22 @@
     {% csrf_token %}
 
     <label>Usuario:</label>
-    <input type="text" name="username" required 
-           style="width:100%; padding:10px; margin-bottom:10px;">
+    <input type="text" name="username" required style="width:100%; padding:10px; margin-bottom:10px;">
 
     <label>Contraseña:</label>
-    <input type="password" name="password" required 
-           style="width:100%; padding:10px; margin-bottom:10px;">
+    <input type="password" name="password" required style="width:100%; padding:10px; margin-bottom:10px;">
 
     <label>Rol:</label>
-    <select name="role" required style="width:100%; padding:10px; margin-bottom:10px;">
+    <select name="role" required style="width:100%; padding:10px; margin-bottom:20px;">
       <option value="">Selecciona un rol</option>
       <option value="docente">Docente</option>
       <option value="estudiante">Estudiante</option>
     </select>
 
-    <button type="submit" 
-            style="background:#00a3e0; width:100%; padding:12px; color:white;
-                   border:none; border-radius:5px; font-weight:bold;">
+    <button type="submit" style="background:#00a3e0; width:100%; padding:12px; color:white;
+                                 border:none; border-radius:5px; font-weight:bold;">
       Crear Usuario
     </button>
   </form>
-
 </div>
 {% endblock %}

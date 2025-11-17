@@ -2,29 +2,26 @@
 {% block title %}Docentes{% endblock %}
 
 {% block content %}
-
 <h2 style="text-align:center; color:#007bb5;">Docentes Registrados</h2>
 
-<div class="card-grid" style="margin-top:20px;">
+<div class="card-grid" style="margin-top:20px; display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
 
   {% for d in docentes %}
-  <div class="card">
-      <div class="emoji">👩‍🏫</div>
-      <h3>{{ d.username }}</h3>
+  <div class="card" style="width:250px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 3px 6px rgba(0,0,0,0.15); text-align:center;">
+      <div class="emoji" style="font-size:40px;">👩‍🏫</div>
+      <h3 style="color:#007bb5;">{{ d.username }}</h3>
       <p style="color:#333;">Rol: {{ d.role }}</p>
   </div>
   {% empty %}
   <p>No hay docentes registrados.</p>
   {% endfor %}
-
 </div>
 
-<br><br>
+<br>
 <div style="text-align:center;">
   <a href="{% url 'admin_agregar_usuario' %}"
      style="background:#00a3e0; padding:12px; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">
      Agregar Docente
   </a>
 </div>
-
 {% endblock %}

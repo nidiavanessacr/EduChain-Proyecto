@@ -2,17 +2,15 @@
 {% block title %}Panel Administrador{% endblock %}
 
 {% block content %}
-
 <style>
-  .dashboard-container {
-    text-align: center;
-  }
+  .dashboard-container { text-align: center; }
 
   .stats-box {
     display: flex;
     justify-content: center;
     gap: 25px;
     margin-bottom: 30px;
+    flex-wrap: wrap;
   }
 
   .stat {
@@ -21,25 +19,12 @@
     width: 200px;
     padding: 20px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    font-weight: bold;
   }
 
-  .stat h3 {
-    font-size: 18px;
-    color: #007bb5;
-    margin-bottom: 5px;
-  }
+  .stat h3 { font-size: 18px; color: #007bb5; margin-bottom: 5px; }
+  .stat p { font-size: 22px; margin: 0; color: #444; }
 
-  .stat p {
-    font-size: 22px;
-    margin: 0;
-    color: #444;
-  }
-
-  .search-container {
-    margin-bottom: 25px;
-  }
-
+  .search-container { margin-bottom: 25px; }
   .search-container input {
     width: 50%;
     padding: 12px;
@@ -53,17 +38,16 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 25px;
-    margin-top: 20px;
   }
 
   .card {
     background: #f9f9f9;
     border-radius: 12px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
     width: 260px;
     padding: 25px;
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: 0.2s ease;
   }
 
   .card:hover {
@@ -71,75 +55,46 @@
     box-shadow: 0 8px 14px rgba(0,0,0,0.25);
   }
 
-  .card h3 {
-    color: #007bb5;
-    margin-bottom: 10px;
-    font-size: 20px;
-  }
+  .card h3 { color: #007bb5; font-size: 20px; margin-bottom: 10px; }
 
   .card a {
     display: block;
     background: #00a3e0;
     color: white;
-    text-decoration: none;
-    border-radius: 6px;
     padding: 12px;
+    border-radius: 6px;
+    margin-top: 8px;
     font-weight: bold;
+    text-decoration: none;
     transition: background 0.2s;
-    margin-top: 10px;
   }
 
-  .card a:hover {
-    background: #0085ba;
-  }
+  .card a:hover { background: #0085ba; }
 
-  .emoji {
-    font-size: 45px;
-    margin-bottom: 10px;
-  }
+  .emoji { font-size: 45px; margin-bottom: 10px; }
 
-  /* Ocultar con fade */
-  .hidden {
-    display: none;
-  }
-
+  .hidden { display: none; }
 </style>
 
 <div class="dashboard-container">
 
-  <!-- TÍTULO -->
-  <h2 style="color:#007bb5; font-size:28px;">Bienvenido, {{ user.username }} (admin)</h2>
-  <p style="margin-bottom:35px;">Panel general de administración del sistema EduChain.</p>
+  <h2 style="color:#007bb5; font-size:28px;">Bienvenido, {{ user.username }} (Administrador)</h2>
+  <p style="margin-bottom:35px;">Panel general de administración de EduChain.</p>
 
-  <!-- ESTADÍSTICAS -->
+  <!-- Estadísticas -->
   <div class="stats-box">
-    <div class="stat">
-      <h3>Docentes</h3>
-      <p>{{ total_docentes }}</p>
-    </div>
-
-    <div class="stat">
-      <h3>Estudiantes</h3>
-      <p>{{ total_estudiantes }}</p>
-    </div>
-
-    <div class="stat">
-      <h3>Actividades</h3>
-      <p>{{ total_actividades }}</p>
-    </div>
-
-    <div class="stat">
-      <h3>Asignadas</h3>
-      <p>{{ total_asignadas }}</p>
-    </div>
+    <div class="stat"><h3>Docentes</h3><p>{{ total_docentes }}</p></div>
+    <div class="stat"><h3>Estudiantes</h3><p>{{ total_estudiantes }}</p></div>
+    <div class="stat"><h3>Actividades</h3><p>{{ total_actividades }}</p></div>
+    
   </div>
 
-  <!-- BUSCADOR -->
+  <!-- Buscador -->
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="Buscar docentes, estudiantes o actividades...">
   </div>
 
-  <!-- CARDS -->
+  <!-- Opciones -->
   <div class="card-grid" id="cardGrid">
 
     <!-- DOCENTES -->
@@ -172,25 +127,25 @@
       <a href="{% url 'admin_asignar_actividad' %}">Asignar</a>
     </div>
 
+    <!-- VER ACTIVIDADES -->
+  <div class="card card-item" data-name="ver actividades lista tareas">
+      <div class="emoji">📚</div>
+      <h3>Ver Actividades</h3>
+      <a href="{% url 'admin_ver_actividades' %}">Ver Lista</a>
   </div>
 
+  </div>
 </div>
 
-<!-- JS: Buscador -->
 <script>
   const input = document.getElementById("searchInput");
   const cards = document.querySelectorAll(".card-item");
 
-  input.addEventListener("keyup", function () {
+  input.addEventListener("keyup", () => {
     const term = input.value.toLowerCase();
-
     cards.forEach(card => {
-      const keywords = card.getAttribute("data-name");
-      if (keywords.toLowerCase().includes(term)) {
-        card.classList.remove("hidden");
-      } else {
-        card.classList.add("hidden");
-      }
+      const keywords = card.dataset.name;
+      card.classList.toggle("hidden", !keywords.toLowerCase().includes(term));
     });
   });
 </script>

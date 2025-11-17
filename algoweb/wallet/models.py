@@ -57,9 +57,7 @@ class Transaccion(models.Model):
     receiver = models.CharField(max_length=100)
     amount = models.FloatField()
 
-    # TXID puede ser NULL porque no existe al crear la transacción
     txid = models.CharField(max_length=200, null=True, blank=True)
-
     tipo = models.CharField(max_length=50)
     estado = models.CharField(max_length=50)
 
@@ -68,12 +66,15 @@ class Transaccion(models.Model):
 
 
 # -----------------------------
-# ACTIVIDADES CREADAS POR DOCENTE
+# ACTIVIDADES CREADAS (DOCENTE O ADMIN)
 # -----------------------------
 class Actividad(models.Model):
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     fecha_entrega = models.DateField(null=True, blank=True)
+
+    # NUEVO CAMPO: recompensa en ALGOs
+    recompensa = models.IntegerField(default=0)
 
     docente = models.ForeignKey(
         User,
