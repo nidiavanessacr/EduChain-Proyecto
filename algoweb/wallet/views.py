@@ -617,3 +617,21 @@ def docente_asignar_estudiantes_guardar(request, actividad_id):
 
     messages.success(request, "Asignación actualizada exitosamente.")
     return redirect("docente_elegir_actividad_para_asignar")
+
+# ======================================
+# WALLET: SALDO REAL
+# ======================================
+
+@login_required
+def get_balance(request):
+    address = request.GET.get("address")
+
+    if not address:
+        return JsonResponse({"error": "No se proporcionó dirección"}, status=400)
+
+    try:
+        info = ALGOD_CLIENT.account_info(address)
+        balance = info.get("amount", 0) / 1_000_000
+        return JsonResponse({"balance": balance})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

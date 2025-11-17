@@ -1,11 +1,41 @@
-{% extends 'wallet/base.html' %}
-
+{% extends "wallet/base.html" %}
 {% block title %}Mi Wallet{% endblock %}
 
 {% block content %}
 
 <h2>Bienvenido, {{ user.username }}</h2>
-<p><strong>Dirección:</strong> {{ address }}</p>
-<p><strong>Balance:</strong> {{ balance }} Algos</p>
-<p><strong>Activos:</strong> {{ txs }}</p>
+
+<p><strong>Dirección:</strong>
+    {% if user.wallet %}
+        {{ user.wallet.address }}
+    {% else %}
+        Sin wallet asignada
+    {% endif %}
+</p>
+
+<p><strong>Balance:</strong> 
+    <span id="wallet-balance">Cargando...</span>
+</p>
+
+<p><strong>Activos:</strong> Próximamente</p>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const address = "{{ user.wallet.address }}";
+    const balanceSpan = document.getElementById("wallet-balance");
+
+    fetch(`/get_balance/?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.balance !== undefined) {
+                balanceSpan.innerText = data.balance + " ALGOs";
+            } else {
+                balanceSpan.innerText = "Error";
+            }
+        })
+        .catch(() => balanceSpan.innerText = "Error");
+});
+</script>
+
 {% endblock %}
