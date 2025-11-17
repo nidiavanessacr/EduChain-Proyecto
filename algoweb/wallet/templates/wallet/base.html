@@ -107,13 +107,13 @@
 
     <nav>
       {% if user.role == "admin" %}
-        <a href="{% url 'dashboard_admin' %}">Dashboard Admin</a>
+        <a href="{% url 'dashboard_admin' %}">Panel del Administrador</a>
 
       {% elif user.role == "docente" %}
-        <a href="{% url 'dashboard_docente' %}">Dashboard Docente</a>
+        <a href="{% url 'dashboard_docente' %}">Panel del Docente</a>
 
       {% elif user.role == "estudiante" %}
-        <a href="{% url 'dashboard_estudiante' %}">Panel Estudiante</a>
+        <a href="{% url 'dashboard_estudiante' %}">Panel del Estudiante</a>
       {% endif %}
 
       <a href="{% url 'logout' %}">Cerrar sesión</a>

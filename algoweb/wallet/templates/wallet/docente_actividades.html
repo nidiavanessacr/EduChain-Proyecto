@@ -76,7 +76,7 @@
         <p>{{ act.descripcion }}</p>
 
         <p class="label">Fecha de entrega:</p>
-        <p>{{ act.fecha_entrega|date:"d \\de F \\de Y" }}</p>
+        <p>{{ act.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}</p>
 
         <p class="label">Recompensa:</p>
         <p>{{ act.recompensa }} ALGOs</p>
@@ -92,7 +92,12 @@
             {% endwith %}
         </p>
 
-        <!-- BOTÓN que sí sirve (lleva al docente a revisar entregas) -->
+        <!-- BOTÓN NUEVO -->
+        <a class="btn-primary"
+           href="{% url 'docente_asignar_estudiantes' act.id %}">
+           Asignar estudiantes
+        </a>
+
         <a class="btn-primary"
            href="{% url 'docente_revisar_entregas' act.id %}">
            Revisar entregas

@@ -190,15 +190,13 @@ def admin_crear_actividad(request):
     if request.method == "POST":
         titulo = request.POST.get("titulo")
         descripcion = request.POST.get("descripcion")
-        fecha = request.POST.get("fecha")  # dd/mm/aaaa
+        fecha = request.POST.get("fecha")  # Recibido en formato YYYY-MM-DD
         recompensa = request.POST.get("recompensa")
 
-        try:
-            d, m, y = fecha.split("/")
-            fecha_convertida = f"{y}-{m}-{d}"
-        except:
-            messages.error(request, "Formato de fecha inválido. Usa dd/mm/aaaa.")
-            return redirect("admin_crear_actividad")
+        if not fecha:
+            fecha_convertida = None
+        else:
+            fecha_convertida = fecha  # Ya viene en formato correcto para DateField
 
         Actividad.objects.create(
             titulo=titulo,
@@ -211,6 +209,7 @@ def admin_crear_actividad(request):
         return redirect("dashboard_admin")
 
     return render(request, "wallet/admin_crear_actividad.html")
+
 
 
 
@@ -253,8 +252,6 @@ def admin_ver_actividades(request):
         "actividades": actividades
     })
 
-
-
 @login_required
 def admin_editar_actividad(request, id):
     if request.user.role != "admin":
@@ -265,14 +262,13 @@ def admin_editar_actividad(request, id):
     if request.method == "POST":
         actividad.titulo = request.POST.get("titulo")
         actividad.descripcion = request.POST.get("descripcion")
+
         fecha = request.POST.get("fecha")
 
-        try:
-            d, m, y = fecha.split("/")
-            actividad.fecha_entrega = f"{y}-{m}-{d}"
-        except:
-            messages.error(request, "Error: usa dd/mm/aaaa.")
-            return redirect("admin_editar_actividad", id=id)
+        if not fecha:
+            actividad.fecha_entrega = None
+        else:
+            actividad.fecha_entrega = fecha  # YYYY-MM-DD correcto
 
         actividad.recompensa = request.POST.get("recompensa")
         actividad.save()
@@ -281,7 +277,6 @@ def admin_editar_actividad(request, id):
         return redirect("admin_ver_actividades")
 
     return render(request, "wallet/admin_editar_actividad.html", {"actividad": actividad})
-
 
 
 @login_required
@@ -305,7 +300,13 @@ def dashboard_docente(request):
     if request.user.role != "docente":
         return redirect("login")
 
-    return render(request, "wallet/dashboard_docente.html")
+    total_actividades = Actividad.objects.filter(docente=request.user).count()
+    total_estudiantes = User.objects.filter(role="estudiante").count()
+
+    return render(request, "wallet/dashboard_docente.html", {
+        "total_actividades": total_actividades,
+        "total_estudiantes": total_estudiantes,
+    })
 
 
 
@@ -385,6 +386,20 @@ def mi_wallet(request):
     wallet = Wallet.objects.filter(user=request.user).first()
     return render(request, "wallet/mi_wallet.html", {"wallet": wallet})
 
+# ======================================
+#  WALLET DEL ADMIN
+# ======================================
+
+@login_required
+def admin_wallet(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    wallet = Wallet.objects.filter(user=request.user).first()
+
+    return render(request, "wallet/admin_wallet.html", {
+        "wallet": wallet
+    })
 
 
 @login_required
@@ -401,8 +416,6 @@ def get_balance(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
-
-
 # ======================================
 #  DASHBOARD ESTUDIANTE
 # ======================================
@@ -413,6 +426,194 @@ def dashboard_estudiante(request):
 
     actividades = ActividadAsignada.objects.filter(estudiante=request.user)
 
+    # Total de ALGOs listos para recibir (actividades finalizadas por el docente)
+    total_algos = sum(a.actividad.recompensa for a in actividades if a.finalizada)
+
+    # Contar entregadas
+    total_entregadas = actividades.filter(entregada=True).count()
+
+    # Contar finalizadas
+    total_finalizadas = actividades.filter(finalizada=True).count()
+
     return render(request, "wallet/dashboard_estudiante.html", {
+        "actividades": actividades,
+        "total_algos": total_algos,
+        "total_entregadas": total_entregadas,
+        "total_finalizadas": total_finalizadas,
+    })
+
+# ======================================
+# ESTUDIANTE: MIS ACTIVIDADES
+# ======================================
+@login_required
+def estudiante_mis_actividades(request):
+    if request.user.role != "estudiante":
+        return redirect("login")
+
+    actividades = ActividadAsignada.objects.filter(estudiante=request.user)
+
+    return render(request, "wallet/estudiante_mis_actividades.html", {
         "actividades": actividades
     })
+
+# ======================================
+# ESTUDIANTE: ENTREGAR ACTIVIDAD
+# ======================================
+@login_required
+def estudiante_entregar(request, asignacion_id):
+    if request.user.role != "estudiante":
+        return redirect("login")
+
+    asignacion = get_object_or_404(
+        ActividadAsignada,
+        id=asignacion_id,
+        estudiante=request.user
+    )
+
+    if request.method == "POST":
+        evidencia_texto = request.POST.get("evidencia_texto")
+        evidencia_link = request.POST.get("evidencia_link")
+
+        # Guardamos evidencias
+        asignacion.evidencia_texto = evidencia_texto
+        asignacion.evidencia_link = evidencia_link if evidencia_link else ""
+
+        # Marcamos como entregada
+        asignacion.entregada = True
+        asignacion.save()
+
+        messages.success(request, "¡Entrega enviada correctamente!")
+        return redirect("estudiante_mis_actividades")
+
+    return render(request, "wallet/estudiante_entregar_actividad.html", {
+        "asignacion": asignacion
+    })
+
+# ======================================
+# ESTUDIANTE: HISTORIAL
+# ======================================
+@login_required
+def estudiante_historial(request):
+    if request.user.role != "estudiante":
+        return redirect("login")
+
+    # Solo actividades finalizadas se consideran como recompensadas
+    historial = ActividadAsignada.objects.filter(
+        estudiante=request.user,
+        finalizada=True
+    )
+
+    total_algos = sum(a.actividad.recompensa for a in historial)
+
+    return render(request, "wallet/estudiante_historial.html", {
+        "historial": historial,
+        "total_algos": total_algos,
+    })
+
+
+# ======================================
+# DOCENTE: ASIGNAR ESTUDIANTES A UNA ACTIVIDAD
+# ======================================
+@login_required
+def docente_asignar_estudiantes(request, actividad_id):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividad = get_object_or_404(Actividad, id=actividad_id, docente=request.user)
+
+    # Estudiantes disponibles
+    estudiantes = User.objects.filter(role="estudiante")
+
+    # Estudiantes ya asignados
+    asignados = ActividadAsignada.objects.filter(actividad=actividad).values_list('estudiante_id', flat=True)
+
+    return render(request, "wallet/docente_asignar_estudiantes.html", {
+        "actividad": actividad,
+        "estudiantes": estudiantes,
+        "asignados": asignados
+    })
+
+
+@login_required
+def docente_asignar_estudiantes_guardar(request, actividad_id):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividad = get_object_or_404(Actividad, id=actividad_id, docente=request.user)
+
+    seleccionados = request.POST.getlist("estudiantes")
+
+    # Eliminar asignaciones anteriores
+    ActividadAsignada.objects.filter(actividad=actividad).delete()
+
+    # Crear nuevas asignaciones
+    for estudiante_id in seleccionados:
+        estudiante = User.objects.get(id=estudiante_id)
+        ActividadAsignada.objects.create(
+            actividad=actividad,
+            estudiante=estudiante,
+            entregada=False,
+            finalizada=False
+        )
+
+    messages.success(request, "Estudiantes asignados correctamente.")
+    return redirect("docente_actividades")
+
+# ======================================
+# DOCENTE: ELEGIR ACTIVIDAD A ASIGNAR
+# ======================================
+
+@login_required
+def docente_elegir_actividad_para_asignar(request):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividades = Actividad.objects.filter(docente=request.user)
+
+    return render(request, "wallet/docente_elegir_actividad.html", {
+        "actividades": actividades
+    })
+
+@login_required
+def docente_asignar_estudiantes(request, actividad_id):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividad = get_object_or_404(Actividad, id=actividad_id, docente=request.user)
+
+    estudiantes = User.objects.filter(role="estudiante")
+
+    # IDs ya asignados
+    asignados = list(
+        ActividadAsignada.objects.filter(actividad=actividad).values_list("estudiante_id", flat=True)
+    )
+
+    return render(request, "wallet/docente_asignar_estudiantes.html", {
+        "actividad": actividad,
+        "estudiantes": estudiantes,
+        "asignados": asignados
+    })
+
+@login_required
+def docente_asignar_estudiantes_guardar(request, actividad_id):
+    if request.user.role != "docente":
+        return redirect("dashboard_docente")
+
+    actividad = get_object_or_404(Actividad, id=actividad_id, docente=request.user)
+
+    seleccionados = request.POST.getlist("estudiantes")  # lista de IDs
+
+    # Borrar asignaciones actuales
+    ActividadAsignada.objects.filter(actividad=actividad).delete()
+
+    # Crear nuevas asignaciones
+    for est_id in seleccionados:
+        ActividadAsignada.objects.create(
+            actividad=actividad,
+            estudiante_id=est_id,
+            entregada=False,
+            finalizada=False
+        )
+
+    messages.success(request, "Asignación actualizada exitosamente.")
+    return redirect("docente_elegir_actividad_para_asignar")

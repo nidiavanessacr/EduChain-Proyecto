@@ -1,0 +1,35 @@
+{% extends "wallet/base.html" %}
+{% block title %}Asignar Estudiantes{% endblock %}
+
+{% block content %}
+
+<h2 style="text-align:center; color:#007bb5;">Asignar Estudiantes</h2>
+
+<div style="width:50%; margin:auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+  <h3>{{ actividad.titulo }}</h3>
+  <p>Selecciona los estudiantes para esta actividad:</p>
+
+  <form method="POST" action="{% url 'docente_asignar_estudiantes_guardar' actividad.id %}">
+    {% csrf_token %}
+
+    {% for est in estudiantes %}
+      <div style="margin-bottom:10px;">
+        <label>
+          <input type="checkbox" name="estudiantes" value="{{ est.id }}"
+                 {% if est.id in asignados %}checked{% endif %}>
+          {{ est.username }}
+        </label>
+      </div>
+    {% endfor %}
+
+    <button type="submit"
+            style="padding:12px; background:#00a3e0; color:white; border:none;
+                   border-radius:6px; font-weight:bold; width:100%; margin-top:20px;">
+      Guardar asignación
+    </button>
+
+  </form>
+</div>
+
+{% endblock %}

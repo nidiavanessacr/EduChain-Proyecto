@@ -104,5 +104,10 @@ class ActividadAsignada(models.Model):
     entregada = models.BooleanField(default=False)
     finalizada = models.BooleanField(default=False)
 
+    # CAMPOS NUEVOS NECESARIOS
+    evidencia_texto = models.TextField(null=True, blank=True)
+    evidencia_link = models.URLField(null=True, blank=True)
+    fecha_entrega_real = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.actividad.titulo} → {self.estudiante.username if self.estudiante else 'Sin asignar'}"

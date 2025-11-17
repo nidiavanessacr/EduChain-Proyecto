@@ -123,7 +123,7 @@
         {% endif %}
 
         <p class="label">Fecha límite:</p>
-        <p>{{ actividad.fecha_entrega|date:"d \\de F \\de Y" }}</p>
+        <p>{{ actividad.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}</p>
 
         {% if asignacion.entregada and not asignacion.finalizada %}
         <a class="btn-primary btn-finish"

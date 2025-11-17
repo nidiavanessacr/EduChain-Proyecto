@@ -78,7 +78,9 @@
 
 <div class="dashboard-container">
 
-  <h2 style="color:#007bb5; font-size:28px;">Bienvenido, {{ user.username }} (Administrador)</h2>
+  <h2 style="color:#007bb5; font-size:28px;">
+    Bienvenido, {{ user.username }} (Administrador)
+  </h2>
   <p style="margin-bottom:35px;">Panel general de administración de EduChain.</p>
 
   <!-- Estadísticas -->
@@ -86,7 +88,6 @@
     <div class="stat"><h3>Docentes</h3><p>{{ total_docentes }}</p></div>
     <div class="stat"><h3>Estudiantes</h3><p>{{ total_estudiantes }}</p></div>
     <div class="stat"><h3>Actividades</h3><p>{{ total_actividades }}</p></div>
-    
   </div>
 
   <!-- Buscador -->
@@ -128,11 +129,18 @@
     </div>
 
     <!-- VER ACTIVIDADES -->
-  <div class="card card-item" data-name="ver actividades lista tareas">
+    <div class="card card-item" data-name="ver actividades lista tareas">
       <div class="emoji">📚</div>
       <h3>Ver Actividades</h3>
       <a href="{% url 'admin_ver_actividades' %}">Ver Lista</a>
-  </div>
+    </div>
+
+    <!-- MI WALLET -->
+    <div class="card card-item" data-name="mi wallet saldo direccion">
+      <div class="emoji">💰</div>
+      <h3>Mi Wallet</h3>
+      <a href="{% url 'admin_wallet' %}">Ver Wallet</a>
+    </div>
 
   </div>
 </div>

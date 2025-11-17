@@ -4,86 +4,149 @@
 {% block title %}Panel Estudiante{% endblock %}
 
 {% block content %}
-<div class="dashboard-container" style="text-align: center;">
 
-    <h2 style="color: #007bb5; font-size: 26px;">Panel del estudiante</h2>
-    <p style="margin-bottom: 30px;">
-        Bienvenido al sistema de recompensas académicas basado en blockchain.
-    </p>
+<style>
+  .dashboard-container { text-align: center; }
 
-    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
+  /* ESTADÍSTICAS */
+  .stats-box {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+  }
 
-        <!-- ACTIVIDADES ASIGNADAS -->
-        <div style="
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        ">
-            <h3 style="color: #007bb5;">Actividades Asignadas</h3>
-            <p>Consulta las actividades que te han sido asignadas.</p>
+  .stat {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 220px;
+      padding: 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      text-align: center;
+  }
 
-            <a href="{% url 'dashboard_estudiante' %}"
-               style="
-                    background-color: #007bb5;
-                    color: white;
-                    padding: 10px 15px;
-                    border-radius: 5px;
-                    text-decoration: none;
-               ">
-                Ver
-            </a>
-        </div>
+  .stat h3 {
+      font-size: 18px;
+      color: #007bb5;
+      margin-bottom: 5px;
+  }
 
-        <!-- ENTREGAR ACTIVIDAD -->
-        <div style="
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        ">
-            <h3 style="color: #007bb5;">Entregar Actividad</h3>
-            <p>Envía tus entregas y recibe recompensas.</p>
+  .stat p {
+      font-size: 22px;
+      margin: 0;
+      color: #444;
+      font-weight: bold;
+  }
 
-            <!-- Ruta placeholder hasta integrar módulo de entregas -->
-            <a href="#"
-               style="
-                    background-color: #007bb5;
-                    color: white;
-                    padding: 10px 15px;
-                    border-radius: 5px;
-                    text-decoration: none;
-               ">
-                Ir
-            </a>
-        </div>
+  /* TARJETAS */
+  .card-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
 
-        <!-- HISTORIAL -->
-        <div style="
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        ">
-            <h3 style="color: #007bb5;">Historial de Recompensas</h3>
-            <p>Consulta tus transacciones y recompensas obtenidas.</p>
+  .card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    width: 270px;
+    padding: 25px;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s;
+  }
 
-            <!-- Si no existe esta ruta, la dejamos por ahora -->
-            <a href="#"
-               style="
-                    background-color: #007bb5;
-                    color: white;
-                    padding: 10px 15px;
-                    border-radius: 5px;
-                    text-decoration: none;
-               ">
-                Ver
-            </a>
-        </div>
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  }
 
+  .card h3 {
+      color: #007bb5;
+      margin-bottom: 12px;
+      font-size: 20px;
+  }
+
+  .card a {
+    display: block;
+    background: #00a3e0;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: bold;
+    transition: background .2s;
+    margin-top: 10px;
+  }
+
+  .card a:hover { background: #0085ba; }
+
+  .card .emoji {
+      font-size: 45px;
+      margin-bottom: 10px;
+  }
+</style>
+
+<div class="dashboard-container">
+
+  <h2 style="color:#007bb5; font-size:28px;">
+    Bienvenido, {{ user.username }} (Estudiante)
+  </h2>
+  <p style="margin-bottom:35px;">Resumen general de tus actividades y recompensas.</p>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="stats-box">
+
+      <div class="stat">
+          <h3>Actividades asignadas</h3>
+          <p>{{ actividades.count }}</p>
+      </div>
+
+      <div class="stat">
+          <h3>Completadas</h3>
+          <p>{{ completadas }}</p>
+      </div>
+
+      <div class="stat">
+          <h3>Recompensas obtenidas</h3>
+          <p>{{ total_algos }} ALGOs</p>
+      </div>
+
+  </div>
+
+  <!-- TARJETAS -->
+  <div class="card-grid">
+
+    <!-- Mis actividades -->
+    <div class="card">
+      <div class="emoji">📚</div>
+      <h3>Mis Actividades</h3>
+      <a href="{% url 'estudiante_mis_actividades' %}">Ver actividades</a>
     </div>
+
+    <!-- Entregar actividad -->
+    <div class="card">
+      <div class="emoji">📤</div>
+      <h3>Entregar Actividad</h3>
+      <a href="{% url 'estudiante_mis_actividades' %}">Seleccionar actividad</a>
+    </div>
+
+    <!-- Historial de Recompensas -->
+    <div class="card">
+      <div class="emoji">🎁</div>
+      <h3>Historial de Recompensas</h3>
+      <a href="{% url 'estudiante_historial' %}">Ver historial</a>
+    </div>
+
+    <!-- Wallet -->
+    <div class="card">
+      <div class="emoji">💰</div>
+      <h3>Mi Wallet</h3>
+      <a href="{% url 'mi_wallet' %}">Ver wallet</a>
+    </div>
+
+  </div>
 </div>
+
 {% endblock %}

@@ -1,0 +1,34 @@
+{% extends "wallet/base.html" %}
+{% block title %}Mi Wallet{% endblock %}
+
+{% block content %}
+
+<div style="
+    width: 60%;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+">
+
+    <h2 style="color:#007bb5; margin-bottom:20px;">
+        Bienvenido, {{ request.user.username }} (Administrador)
+    </h2>
+
+    <p><strong>Dirección:</strong> {{ wallet.address }}</p>
+    <p><strong>Balance:</strong> <span id="balance">Cargando...</span></p>
+    <p><strong>Activos:</strong> ALGOs</p>
+
+</div>
+
+<script>
+    fetch(`/get_balance/?address={{ wallet.address }}`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("balance").innerText =
+            data.balance ? data.balance + " ALGOs" : "Error";
+    });
+</script>
+
+{% endblock %}

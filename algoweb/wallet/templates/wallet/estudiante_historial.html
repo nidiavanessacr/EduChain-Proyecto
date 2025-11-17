@@ -1,0 +1,67 @@
+{% extends "wallet/base.html" %}
+{% block title %}Historial de Recompensas{% endblock %}
+
+{% block content %}
+
+<style>
+    .title {
+        text-align: center;
+        color: #007bb5;
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: bold;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .card {
+        background: white;
+        width: 330px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+
+    .emoji { font-size: 45px; margin-bottom: 8px; }
+    .label { font-weight: bold; color: #333; margin-top: 8px; }
+</style>
+
+<h2 class="title">🎁 Historial de Recompensas</h2>
+
+<h3 style="text-align:center; color:#007bb5;">
+    Total recibido: <b>{{ total_algos }} ALGOs</b>
+</h3>
+
+<div class="cards-container">
+
+{% for a in historial %}
+<div class="card">
+
+    <div class="emoji">🏆</div>
+    <h3 style="color:#007bb5;">{{ a.actividad.titulo }}</h3>
+
+    <p class="label">Recompensa:</p>
+    <p>{{ a.actividad.recompensa }} ALGOs</p>
+
+    <p class="label">Estado:</p>
+    <p style="font-weight:bold; color:green;">✔ Finalizada</p>
+
+    <p class="label">Fecha de entrega:</p>
+    <p>{{ a.actividad.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}</p>
+
+</div>
+{% empty %}
+<p style="text-align:center; color:#666; font-size:18px;">
+    Aún no has completado ninguna actividad.
+</p>
+{% endfor %}
+
+</div>
+
+{% endblock %}
