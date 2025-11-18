@@ -1,74 +1,51 @@
-{% extends 'wallet/base.html' %}
-{% load static %}
+{% extends "wallet/base.html" %}
+{% block title %}Historial de Transacciones{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center mb-4">📜 Historial de Transacciones</h2>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+<h2 style="text-align:center; color:#007bb5; margin-bottom:20px;">
+  Historial de Transacciones
+</h2>
 
-    <div class="card shadow-lg p-4">
-        {% if transacciones %}
-            <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead class="table-dark text-center">
-                        <tr>
-                            <th>ID</th>
-                            <th>Fecha</th>
-                            <th>Emisor</th>
-                            <th>Receptor</th>
-                            <th>Monto (ALGOs)</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                            <th>TxID</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        {% for t in transacciones %}
-                            <tr>
-                                <td>{{ t.id }}</td>
-                                <td>{{ t.fecha_creacion|date:"d/m/Y H:i" }}</td>
-                                <td>{{ t.sender|truncatechars:12 }}</td>
-                                <td>{{ t.receiver|truncatechars:12 }}</td>
-                                <td><strong>{{ t.amount|floatformat:6 }}</strong></td>
-                                <td>{{ t.tipo }}</td>
-                                <td>
-                                    {% if t.estado == 'confirmed' %}
-                                        <span class="badge bg-success">Confirmada</span>
-                                    {% elif t.estado == 'pending' %}
-                                        <span class="badge bg-warning text-dark">Pendiente</span>
-                                    {% elif t.estado == 'failed' %}
-                                        <span class="badge bg-danger">Fallida</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">{{ t.estado }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if t.txid %}
-                                        <a href="https://testnet.explorer.perawallet.app/tx/{{ t.txid }}" 
-                                           target="_blank" class="link-primary text-decoration-none">
-                                            {{ t.txid|truncatechars:10 }}
-                                        </a>
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <p class="text-center text-muted">No hay transacciones registradas todavía.</p>
-        {% endif %}
-    </div>
+<div style="width:80%; margin:auto; background:white; padding:25px; border-radius:12px; box-shadow:0 3px 6px rgba(0,0,0,0.15);">
 
-    <div class="text-center mt-4">
-        <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">⬅ Volver al Panel</a>
-    </div>
+  <table style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background:#00a3e0; color:white;">
+        <th style="padding:10px;">Fecha</th>
+        <th>Tipo</th>
+        <th>Enviado por</th>
+        <th>Recibido por</th>
+        <th>Monto (ALGO)</th>
+        <th>TXID</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for t in transacciones %}
+      <tr style="text-align:center; border-bottom:1px solid #ccc;">
+        <td>{{ t.fecha }}</td>
+        <td>{{ t.tipo }}</td>
+        <td>{{ t.sender }}</td>
+        <td>{{ t.receiver }}</td>
+        <td>{{ t.amount }}</td>
+        <td>
+          {% if t.txid %}
+            <a href="https://testnet.algoexplorer.io/tx/{{ t.txid }}"
+               target="_blank" style="color:#007bb5;">
+               Ver TX 🔗
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="padding:20px;">No hay transacciones registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
 </div>
+
 {% endblock %}

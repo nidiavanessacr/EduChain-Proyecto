@@ -1,0 +1,37 @@
+{% extends "wallet/base.html" %}
+{% block title %}Wallets del Sistema{% endblock %}
+
+{% block content %}
+<h2 style="color:#007bb5; text-align:center; margin-bottom:25px;">
+    💼 Wallets de todos los usuarios
+</h2>
+
+<table style="
+    width:100%;
+    background:white;
+    border-collapse: collapse;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 3px 6px rgba(0,0,0,0.2);
+">
+    <thead style="background:#00a3e0; color:white;">
+        <tr>
+            <th style="padding:12px;">Usuario</th>
+            <th style="padding:12px;">Rol</th>
+            <th style="padding:12px;">Dirección</th>
+            <th style="padding:12px;">Balance (ALGOs)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for w in wallets %}
+        <tr style="text-align:center; border-bottom:1px solid #ddd;">
+            <td style="padding:10px;">{{ w.username }}</td>
+            <td style="padding:10px;">{{ w.role }}</td>
+            <td style="padding:10px; font-family:monospace;">{{ w.address }}</td>
+            <td style="padding:10px; font-weight:bold;">{{ w.balance }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

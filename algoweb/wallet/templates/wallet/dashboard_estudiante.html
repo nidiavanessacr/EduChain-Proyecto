@@ -95,25 +95,6 @@
   </h2>
   <p style="margin-bottom:35px;">Resumen general de tus actividades y recompensas.</p>
 
-  <!-- ESTADÍSTICAS -->
-  <div class="stats-box">
-
-      <div class="stat">
-          <h3>Actividades asignadas</h3>
-          <p>{{ actividades.count }}</p>
-      </div>
-
-      <div class="stat">
-          <h3>Completadas</h3>
-          <p>{{ completadas }}</p>
-      </div>
-
-      <div class="stat">
-          <h3>Recompensas obtenidas</h3>
-          <p>{{ total_algos }} ALGOs</p>
-      </div>
-
-  </div>
 
   <!-- TARJETAS -->
   <div class="card-grid">
@@ -130,13 +111,6 @@
       <div class="emoji">📤</div>
       <h3>Entregar Actividad</h3>
       <a href="{% url 'estudiante_mis_actividades' %}">Seleccionar actividad</a>
-    </div>
-
-    <!-- Historial de Recompensas -->
-    <div class="card">
-      <div class="emoji">🎁</div>
-      <h3>Historial de Recompensas</h3>
-      <a href="{% url 'estudiante_historial' %}">Ver historial</a>
     </div>
 
     <!-- Wallet -->

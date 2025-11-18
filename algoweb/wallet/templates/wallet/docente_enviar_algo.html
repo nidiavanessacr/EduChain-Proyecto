@@ -1,0 +1,50 @@
+{% extends "wallet/base.html" %}
+{% block title %}Enviar ALGOs{% endblock %}
+
+{% block content %}
+
+<h2 style="color:#007bb5; text-align:center; margin-bottom:25px;">
+    Enviar ALGOs a un Estudiante
+</h2>
+
+<div style="
+    width:50%;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.15);
+">
+    <p><strong>Mi Dirección:</strong> {{ docente_wallet.address }}</p>
+
+    <hr style="margin:15px 0;">
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label><strong>Seleccionar Estudiante:</strong></label>
+        <select name="estudiante" required style="width:100%; padding:10px; border-radius:8px; margin-bottom:15px;">
+            {% for e in estudiantes %}
+                <option value="{{ e.id }}">{{ e.username }} — {{ e.wallet.address }}</option>
+            {% endfor %}
+        </select>
+
+        <label><strong>Monto (ALGO):</strong></label>
+        <input type="number" name="monto" step="0.1" min="0.1" required
+               style="width:100%; padding:10px; border-radius:8px; margin-bottom:20px;">
+
+        <button type="submit" style="
+            width:100%;
+            padding:12px;
+            background:#00a3e0;
+            color:white;
+            border:none;
+            border-radius:8px;
+            font-weight:bold;
+        ">
+            Enviar ALGO
+        </button>
+    </form>
+</div>
+
+{% endblock %}

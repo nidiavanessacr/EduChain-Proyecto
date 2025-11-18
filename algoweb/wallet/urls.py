@@ -1,4 +1,4 @@
-from django.urls import path 
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -32,69 +32,47 @@ urlpatterns = [
     path('dashboard/admin/asignar_actividad/', views.admin_asignar_actividad, name='admin_asignar_actividad'),
     path('dashboard/admin/actividades/', views.admin_ver_actividades, name='admin_ver_actividades'),
 
-    path('dashboard/admin/actividad/<int:id>/editar/',
-         views.admin_editar_actividad,
-         name='admin_editar_actividad'),
-
-    path('dashboard/admin/actividad/<int:id>/eliminar/',
-         views.admin_eliminar_actividad,
-         name='admin_eliminar_actividad'),
+    path('dashboard/admin/actividad/<int:id>/editar/', views.admin_editar_actividad, name='admin_editar_actividad'),
+    path('dashboard/admin/actividad/<int:id>/eliminar/', views.admin_eliminar_actividad, name='admin_eliminar_actividad'),
 
     # ======================================
     # 👨‍🏫 Docente: Actividades
     # ======================================
-    path('dashboard/docente/actividades/',
-         views.docente_actividades,
-         name='docente_actividades'),
+    path('dashboard/docente/actividades/', views.docente_actividades, name='docente_actividades'),
 
     # Revisar entregas
     path('dashboard/docente/actividad/<int:actividad_id>/revisar/',
-         views.docente_revisar_entregas,
-         name='docente_revisar_entregas'),
+         views.docente_revisar_entregas, name='docente_revisar_entregas'),
 
     # Marcar finalizada
     path('dashboard/docente/marcar_finalizada/<int:asignacion_id>/',
-         views.docente_marcar_finalizada,
-         name='docente_marcar_finalizada'),
+         views.docente_marcar_finalizada, name='docente_marcar_finalizada'),
 
     path('dashboard/docente/marcar_finalizada/<int:asignacion_id>/confirmar/',
-         views.docente_marcar_finalizada_confirmar,
-         name='docente_marcar_finalizada_confirmar'),
+         views.docente_marcar_finalizada_confirmar, name='docente_marcar_finalizada_confirmar'),
 
     # ======================================
     # 👨‍🏫 Docente: Asignar estudiantes
     # ======================================
-    path('docente/asignar/',
-         views.docente_elegir_actividad_para_asignar,
+    path('docente/asignar/', views.docente_elegir_actividad_para_asignar,
          name='docente_elegir_actividad_para_asignar'),
 
-    path('docente/asignar/<int:actividad_id>/',
-         views.docente_asignar_estudiantes,
+    path('docente/asignar/<int:actividad_id>/', views.docente_asignar_estudiantes,
          name='docente_asignar_estudiantes'),
 
-    path('docente/asignar/<int:actividad_id>/guardar/',
-         views.docente_asignar_estudiantes_guardar,
+    path('docente/asignar/<int:actividad_id>/guardar/', views.docente_asignar_estudiantes_guardar,
          name='docente_asignar_estudiantes_guardar'),
 
     # ======================================
     # 👨‍🎓 Estudiante
     # ======================================
-
-    # Ver actividades
-    path('estudiante/actividades/',
-         views.estudiante_mis_actividades,
+    path('estudiante/actividades/', views.estudiante_mis_actividades,
          name='estudiante_mis_actividades'),
 
-    # Entregar actividad
-    path('estudiante/entregar/<int:asignacion_id>/',
-         views.estudiante_entregar,
+    path('estudiante/entregar/<int:asignacion_id>/', views.estudiante_entregar,
          name='estudiante_entregar'),
 
-     # Historial de actividades
-     path('estudiante/historial/', 
-     views.estudiante_historial, 
-     name='estudiante_historial'),
-
+    path('estudiante/historial/', views.estudiante_historial, name='estudiante_historial'),
 
     # ======================================
     # 💰 Wallet
@@ -103,8 +81,31 @@ urlpatterns = [
     path('get_balance/', views.get_balance, name='get_balance'),
 
     # ======================================
-    # 💰 WALLET DEL ADMIN
+    # 💰 Wallet del Admin
     # ======================================
     path('dashboard/admin/wallet/', views.admin_wallet, name='admin_wallet'),
+
+    # ======================================
+    # 💰 Vista general de Wallets
+    # ======================================
+    path('dashboard/admin/wallets_sistema/', views.admin_wallets_sistema,
+         name='admin_wallets_sistema'),
+
+     # ======================================
+    # 💰 Transferencia real de algos
+    # ======================================
+
+     # 💰 Transferencia real de algos
+     path('dashboard/admin/enviar_algo/', views.admin_enviar_algo, name='admin_enviar_algo'),
+
+  # ======================================
+    # 💰 HISTORIAL DE TRANSACCIONES
+    # ======================================
+    path('historial/transacciones/', views.historial_transacciones, name='historial_transacciones'),
+
+    # 💰 Docente envía ALGO real al estudiante
+     path('docente/enviar_algo/', views.docente_enviar_algo, name='docente_enviar_algo'),
+
+
 
 ]

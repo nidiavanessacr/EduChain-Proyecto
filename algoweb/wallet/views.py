@@ -1,22 +1,29 @@
+import time
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-
 from .models import User, Wallet, Actividad, ActividadAsignada
+from .models import Wallet, User, Transaccion
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from algosdk import transaction, mnemonic
+from algosdk.v2client import algod
+from algosdk import account, transaction, mnemonic
+from django.contrib import messages
+from django.shortcuts import redirect
+from .models import Wallet, Transaccion
 
 import uuid
 from algosdk.v2client import algod
-
 
 
 # ======================================
 #  CONFIG ALGOD
 # ======================================
 ALGOD_CLIENT = algod.AlgodClient("", "https://testnet-api.algonode.cloud")
-
-
 
 # ======================================
 #  REGISTRO
@@ -32,23 +39,17 @@ def registro(request):
                 "error": "El usuario ya existe"
             })
 
+        # Solo creamos el usuario. La wallet la genera la señal post_save
         user = User.objects.create_user(
             username=username,
             password=password,
             role=role
         )
 
-        Wallet.objects.create(
-            user=user,
-            address="ADDR-" + str(uuid.uuid4())[:12],
-            private_key="PRIV-" + str(uuid.uuid4())[:12]
-        )
-
         messages.success(request, "Cuenta creada exitosamente.")
         return redirect("login")
 
     return render(request, "wallet/registro.html")
-
 
 
 # ======================================
@@ -80,16 +81,12 @@ def login_view(request):
 
     return render(request, "wallet/login.html")
 
-
-
 # ======================================
 # LOGOUT
 # ======================================
 def logout_view(request):
     logout(request)
     return redirect("login")
-
-
 
 # ======================================
 #  DASHBOARD ADMIN
@@ -106,8 +103,6 @@ def dashboard_admin(request):
         "total_asignadas": ActividadAsignada.objects.count(),
     }
     return render(request, "wallet/dashboard_admin.html", context)
-
-
 
 # ======================================
 #  ADMIN: GESTIÓN DE USUARIOS
@@ -147,19 +142,17 @@ def admin_agregar_usuario(request):
                 "error": "El usuario ya existe."
             })
 
-        nuevo = User.objects.create_user(username=username, password=password, role=role)
-
-        Wallet.objects.create(
-            user=nuevo,
-            address="ADDR-" + str(uuid.uuid4())[:12],
-            private_key="PRIV-" + str(uuid.uuid4())[:12]
+        # Solo creamos el usuario; la wallet se crea automáticamente por la señal
+        nuevo = User.objects.create_user(
+            username=username,
+            password=password,
+            role=role
         )
 
         messages.success(request, f"{role.capitalize()} creado correctamente.")
         return redirect("dashboard_admin")
 
     return render(request, "wallet/admin_agregar_usuario.html")
-
 
 
 @login_required
@@ -176,8 +169,6 @@ def admin_eliminar_usuario(request, user_id):
     user.delete()
     messages.success(request, "Usuario eliminado correctamente.")
     return redirect("dashboard_admin")
-
-
 
 # ======================================
 #  ADMIN: ACTIVIDADES
@@ -211,8 +202,6 @@ def admin_crear_actividad(request):
     return render(request, "wallet/admin_crear_actividad.html")
 
 
-
-
 @login_required
 def admin_asignar_actividad(request):
     if request.user.role != "admin":
@@ -238,8 +227,6 @@ def admin_asignar_actividad(request):
         "actividades": actividades,
         "docentes": docentes
     })
-
-
 
 @login_required
 def admin_ver_actividades(request):
@@ -290,8 +277,6 @@ def admin_eliminar_actividad(request, id):
     messages.success(request, "Actividad eliminada.")
     return redirect("admin_ver_actividades")
 
-
-
 # ======================================
 #  DASHBOARD DOCENTE
 # ======================================
@@ -308,8 +293,6 @@ def dashboard_docente(request):
         "total_estudiantes": total_estudiantes,
     })
 
-
-
 # ======================================
 #  DOCENTE: MIS ACTIVIDADES
 # ======================================
@@ -323,8 +306,6 @@ def docente_actividades(request):
     return render(request, "wallet/docente_actividades.html", {
         "actividades": actividades
     })
-
-
 
 # ======================================
 #  DOCENTE: REVISAR ENTREGAS
@@ -342,8 +323,6 @@ def docente_revisar_entregas(request, actividad_id):
         "asignaciones": asignaciones
     })
 
-
-
 # ======================================
 #  DOCENTE: MARCAR FINALIZADA
 # ======================================
@@ -359,8 +338,6 @@ def docente_marcar_finalizada(request, asignacion_id):
         "asignacion": asignacion
     })
 
-
-
 @login_required
 def docente_marcar_finalizada_confirmar(request, asignacion_id):
     asignacion = get_object_or_404(
@@ -375,8 +352,6 @@ def docente_marcar_finalizada_confirmar(request, asignacion_id):
     messages.success(request, f"Entrega finalizada para {asignacion.estudiante.username}.")
 
     return redirect("docente_revisar_entregas", actividad_id=asignacion.actividad.id)
-
-
 
 # ======================================
 #  WALLET
@@ -395,11 +370,52 @@ def admin_wallet(request):
     if request.user.role != "admin":
         return redirect("login")
 
-    wallet = Wallet.objects.filter(user=request.user).first()
+    wallet = Wallet.objects.get(user=request.user)
+
+    try:
+        info = ALGOD_CLIENT.account_info(wallet.address)
+        balance_real = info.get("amount", 0) / 1_000_000
+    except Exception:
+        balance_real = "Error"
 
     return render(request, "wallet/admin_wallet.html", {
-        "wallet": wallet
+        "wallet": wallet,
+        "balance_real": balance_real,
     })
+
+
+# ======================================
+#  ADMIN VISTA GENERAL DE TODAS LAS WALLETS
+# ======================================
+
+@login_required
+def admin_wallets_sistema(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    from algosdk.v2client import algod
+    ALGOD_CLIENT = algod.AlgodClient("", "https://testnet-api.algonode.cloud")
+
+    wallets_info = []
+
+    for w in Wallet.objects.select_related("user").all():
+        try:
+            info = ALGOD_CLIENT.account_info(w.address)
+            balance_algos = info.get("amount", 0) / 1_000_000
+        except Exception:
+            balance_algos = "Error"
+
+        wallets_info.append({
+            "username": w.user.username,
+            "role": w.user.role,
+            "address": w.address,
+            "balance": balance_algos,
+        })
+
+    return render(request, "wallet/admin_wallets_sistema.html", {
+        "wallets": wallets_info
+    })
+
 
 
 @login_required
@@ -424,23 +440,24 @@ def dashboard_estudiante(request):
     if request.user.role != "estudiante":
         return redirect("login")
 
+    # Todas las actividades asignadas
     actividades = ActividadAsignada.objects.filter(estudiante=request.user)
 
-    # Total de ALGOs listos para recibir (actividades finalizadas por el docente)
-    total_algos = sum(a.actividad.recompensa for a in actividades if a.finalizada)
+    # Actividades finalizadas (las que ya pagó el docente)
+    finalizadas = actividades.filter(finalizada=True)
 
-    # Contar entregadas
-    total_entregadas = actividades.filter(entregada=True).count()
+    # Cantidad de actividades completadas
+    total_finalizadas = finalizadas.count()
 
-    # Contar finalizadas
-    total_finalizadas = actividades.filter(finalizada=True).count()
+    # ALGOs reales recibidos -> suma de recompensa de las actividades finalizadas
+    total_algos = sum(a.actividad.recompensa for a in finalizadas)
 
     return render(request, "wallet/dashboard_estudiante.html", {
         "actividades": actividades,
         "total_algos": total_algos,
-        "total_entregadas": total_entregadas,
         "total_finalizadas": total_finalizadas,
     })
+
 
 # ======================================
 # ESTUDIANTE: MIS ACTIVIDADES
@@ -635,3 +652,352 @@ def get_balance(request):
         return JsonResponse({"balance": balance})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+# ======================================
+# TRANFERENCIA DE ALGORAND
+# ======================================
+def transferir_algos(sender_user, receiver_user, amount):
+    sender_wallet = Wallet.objects.get(user=sender_user)
+    receiver_wallet = Wallet.objects.get(user=receiver_user)
+
+    amount = float(amount)
+
+    if sender_wallet.saldo < amount:
+        return False, "Saldo insuficiente"
+
+    # Quitar dinero al que envía
+    sender_wallet.saldo -= amount
+    sender_wallet.save()
+
+    # Añadir dinero al que recibe
+    receiver_wallet.saldo += amount
+    receiver_wallet.save()
+
+    # Registrar transacción
+    Transaccion.objects.create(
+        sender=sender_user.username,
+        receiver=receiver_user.username,
+        amount=amount,
+        tipo="Simulada",
+        estado="Completada"
+    )
+
+    return True, "Transferencia correcta"
+
+# ======================================
+# TRANFERENCIA DE ALGORAND (ADMIN A DOCENTE)
+# ======================================
+
+@login_required
+def admin_recargar_docente(request):
+    if request.user.role != "admin":
+        return redirect("dashboard_admin")
+
+    docentes = User.objects.filter(role="docente")
+
+    if request.method == "POST":
+        docente_id = request.POST.get("docente")
+        cantidad = request.POST.get("cantidad")
+
+        docente = User.objects.get(id=docente_id)
+        admin = request.user
+
+        ok, msg = transferir_algos(admin, docente, cantidad)
+
+        if ok:
+            messages.success(request, "ALGOs enviados correctamente.")
+        else:
+            messages.error(request, msg)
+
+        return redirect("dashboard_admin")
+
+    return render(request, "wallet/admin_recargar_docente.html", {
+        "docentes": docentes
+    })
+
+# ======================================
+# TRANFERENCIA DE ALGORAND (DOCENTE A ESTUDIANTE)
+# ======================================
+
+@login_required
+def docente_marcar_finalizada_confirmar(request, asignacion_id):
+    asignacion = get_object_or_404(
+        ActividadAsignada,
+        id=asignacion_id,
+        actividad__docente=request.user
+    )
+
+    estudiante = asignacion.estudiante
+    docente = request.user
+    recompensa = asignacion.actividad.recompensa
+
+    # Marcar finalizada
+    asignacion.finalizada = True
+    asignacion.save()
+
+    # ENVIAR ALGOS
+    ok, msg = transferir_algos(docente, estudiante, recompensa)
+
+    if ok:
+        messages.success(request, f"Entrega finalizada. {recompensa} ALGOs enviados a {estudiante.username}.")
+    else:
+        messages.error(request, f"Finalizada, pero no se pudieron enviar ALGOs: {msg}")
+
+    return redirect("docente_revisar_entregas", actividad_id=asignacion.actividad.id)
+
+# Cliente Algod (TESTNET)
+ALGOD_CLIENT = algod.AlgodClient(
+    "", 
+    "https://testnet-api.algonode.cloud"
+)
+
+# ======================================
+# ENVIAR ALGO REAL
+# ======================================
+@login_required
+def admin_enviar_algo(request):
+    if request.user.role != "admin":
+        return redirect("login")
+
+    admin_wallet = request.user.wallet
+    docentes = User.objects.filter(role="docente")
+
+    if request.method == "POST":
+        docente_id = request.POST.get("docente")
+        monto = float(request.POST.get("monto"))
+
+        docente = User.objects.get(id=docente_id)
+        docente_wallet = docente.wallet
+
+        params = ALGOD_CLIENT.suggested_params()
+
+        txn = transaction.PaymentTxn(
+            sender=admin_wallet.address,
+            sp=params,
+            receiver=docente_wallet.address,
+            amt=int(monto * 1_000_000)
+        )
+
+        signed_txn = txn.sign(admin_wallet.private_key)
+        txid = ALGOD_CLIENT.send_transaction(signed_txn)
+
+        transaction.wait_for_confirmation(ALGOD_CLIENT, txid, 4)
+
+        Transaccion.objects.create(
+            sender=admin_wallet.address,
+            receiver=docente_wallet.address,
+            amount=monto,
+            txid=txid,
+            tipo="admin→docente",
+            estado="confirmada",
+        )
+
+        admin_wallet.saldo -= monto
+        docente_wallet.saldo += monto
+        admin_wallet.save()
+        docente_wallet.save()
+
+        messages.success(request, f"Se enviaron {monto} ALGO al docente {docente.username}.")
+        return redirect("admin_enviar_algo")
+
+    return render(request, "wallet/admin_enviar_algo.html", {
+        "docentes": docentes,
+        "admin_wallet": admin_wallet,
+    })
+
+# ======================================
+# ENVIAR ALGO REAL (DOCENTE → ESTUDIANTE)
+# ======================================
+def docente_enviar_algo_real(docente, estudiante, monto):
+    """Envía ALGO real desde la wallet del docente hacia la del estudiante"""
+
+    docente_wallet = docente.wallet
+    estudiante_wallet = estudiante.wallet
+
+    monto = float(monto)
+    sender_address = docente_wallet.address
+    sender_pk = docente_wallet.private_key
+
+    # 🔹 0. Validación de saldo local
+    if docente_wallet.saldo < monto:
+        return False, "Saldo insuficiente en la wallet del docente"
+
+    try:
+        # 🔹 1. Obtener parámetros de la red
+        params = ALGOD_CLIENT.suggested_params()
+
+        # 🔹 2. Crear la transacción
+        txn = transaction.PaymentTxn(
+            sender=sender_address,
+            sp=params,
+            receiver=estudiante_wallet.address,
+            amt=int(monto * 1_000_000)  # ALGO → microalgos
+        )
+
+        # 🔹 3. Firmar
+        signed_txn = txn.sign(sender_pk)
+
+        # 🔹 4. Enviar
+        txid = ALGOD_CLIENT.send_transaction(signed_txn)
+
+        # 🔹 5. Esperar confirmación
+        transaction.wait_for_confirmation(ALGOD_CLIENT, txid, 4)
+
+        # 🔹 6. Registrar en BD
+        Transaccion.objects.create(
+            sender=sender_address,
+            receiver=estudiante_wallet.address,
+            amount=monto,
+            txid=txid,
+            tipo="docente→estudiante",
+            estado="confirmada",
+        )
+
+        # 🔹 7. Actualizar saldos locales
+        docente_wallet.saldo -= monto
+        estudiante_wallet.saldo += monto
+        docente_wallet.save()
+        estudiante_wallet.save()
+
+        return True, txid
+
+    except Exception as e:
+        return False, str(e)
+
+    
+
+@login_required
+def docente_marcar_finalizada_confirmar(request, asignacion_id):
+    asignacion = get_object_or_404(
+        ActividadAsignada,
+        id=asignacion_id,
+        actividad__docente=request.user
+    )
+
+    estudiante = asignacion.estudiante
+    docente = request.user
+    recompensa = float(asignacion.actividad.recompensa)
+
+    # 1) Marcar finalizada
+    asignacion.finalizada = True
+    asignacion.save()
+
+    # 2) Enviar ALGO real
+    ok, resultado = docente_enviar_algo_real(docente, estudiante, recompensa)
+
+    if ok:
+        messages.success(request,
+            f"Actividad finalizada. Se enviaron {recompensa} ALGO a {estudiante.username}. TXID: {resultado}"
+        )
+    else:
+        messages.error(request,
+            f"Actividad finalizada pero ocurrió un error al enviar los ALGO: {resultado}"
+        )
+
+    return redirect("docente_revisar_entregas", actividad_id=asignacion.actividad.id)
+
+@login_required
+def docente_enviar_algo(request):
+    if request.user.role != "docente":
+        return redirect("login")
+
+    docente = request.user
+    docentes_wallet = docente.wallet
+
+    # Todos los estudiantes disponibles
+    estudiantes = User.objects.filter(role="estudiante")
+
+    if request.method == "POST":
+        estudiante_id = request.POST.get("estudiante")
+        monto = float(request.POST.get("monto"))
+
+        estudiante = User.objects.get(id=estudiante_id)
+
+        # Validar saldo real desde Algorand (no local)
+        params = ALGOD_CLIENT.suggested_params()
+
+        ok, result = docente_enviar_algo_real(docente, estudiante, monto)
+
+        if ok:
+            messages.success(request, f"Se enviaron {monto} ALGO a {estudiante.username}. TX: {result}")
+        else:
+            messages.error(request, f"No se pudo enviar: {result}")
+
+        return redirect("docente_enviar_algo")
+
+    return render(request, "wallet/docente_enviar_algo.html", {
+        "docente_wallet": docentes_wallet,
+        "estudiantes": estudiantes
+    })
+
+
+# ======================================
+# HISTORIAL DE TRANSACCIONES
+# ======================================
+@login_required
+def historial_transacciones(request):
+    wallet = request.user.wallet
+
+    trans = Transaccion.objects.filter(
+        sender=wallet.address
+    ) | Transaccion.objects.filter(
+        receiver=wallet.address
+    )
+
+    trans = trans.order_by("-fecha")  # Descendentes
+
+    return render(request, "wallet/historial_transacciones.html", {
+        "transacciones": trans
+    })
+
+def docente_enviar_algo_real(docente, estudiante, monto):
+    """Envía ALGO real desde la wallet del docente hacia la del estudiante"""
+
+    docente_wallet = docente.wallet
+    estudiante_wallet = estudiante.wallet
+
+    sender_address = docente_wallet.address
+    sender_pk = docente_wallet.private_key
+
+    try:
+        # Validar saldo real en la red
+        cuenta_info = ALGOD_CLIENT.account_info(sender_address)
+        saldo_real = cuenta_info.get("amount", 0) / 1_000_000
+
+        if saldo_real < monto:
+            return False, "Saldo real insuficiente en la red Algorand"
+
+        # 1. Obtener parámetros
+        params = ALGOD_CLIENT.suggested_params()
+
+        # 2. Crear Tx
+        txn = transaction.PaymentTxn(
+            sender=sender_address,
+            sp=params,
+            receiver=estudiante_wallet.address,
+            amt=int(monto * 1_000_000)
+        )
+
+        # 3. Firmar
+        signed_txn = txn.sign(sender_pk)
+
+        # 4. Enviar
+        txid = ALGOD_CLIENT.send_transaction(signed_txn)
+
+        # 5. Confirmar
+        transaction.wait_for_confirmation(ALGOD_CLIENT, txid, 4)
+
+        # 6. Registrar en BD
+        Transaccion.objects.create(
+            sender=sender_address,
+            receiver=estudiante_wallet.address,
+            amount=monto,
+            txid=txid,
+            tipo="docente→estudiante",
+            estado="confirmada",
+        )
+
+        return True, txid
+
+    except Exception as e:
+        return False, str(e)

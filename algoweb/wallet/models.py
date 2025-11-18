@@ -3,11 +3,12 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from algosdk import account
+from algosdk.v2client import algod
 
 
-# -----------------------------
+# ==========================================================
 # USUARIO CON ROLES
-# -----------------------------
+# ==========================================================
 class User(AbstractUser):
     ROLES = [
         ('admin', 'Administrador'),
@@ -27,38 +28,62 @@ class User(AbstractUser):
         return f"{self.username} ({self.role})"
 
 
-# -----------------------------
+# ==========================================================
 # WALLET
-# -----------------------------
+# ==========================================================
 class Wallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=200)
     private_key = models.CharField(max_length=200)
+    saldo = models.FloatField(default=0.0)   # Se actualiza automáticamente
 
     def __str__(self):
         return f"Wallet de {self.user.username}"
 
+    # ======================================================
+    # CONSULTAR SALDO REAL EN ALGOD CLIENT (propiedad útil)
+    # ======================================================
+    @property
+    def saldo_algorand(self):
+        """Consulta en vivo en la blockchain."""
+        client = algod.AlgodClient("", "https://testnet-api.algonode.cloud")
+        try:
+            info = client.account_info(self.address)
+            return info.get("amount", 0) / 1_000_000
+        except:
+            return 0
 
-# -----------------------------
+    # ======================================================
+    # ACTUALIZAR SALDO LOCAL
+    # ======================================================
+    def actualizar_saldo(self):
+        """Actualiza el saldo guardado en la base de datos."""
+        self.saldo = self.saldo_algorand
+        self.save()
+
+
+# ==========================================================
 # AUTO-CREAR WALLET AL CREAR USUARIO
-# -----------------------------
+# ==========================================================
 @receiver(post_save, sender=User)
 def crear_wallet_usuario(sender, instance, created, **kwargs):
+    """
+    Crea automáticamente una wallet Algorand real cuando
+    se registra un nuevo usuario.
+    """
     if created:
-        # Generar cuenta Algorand
         private_key, address = account.generate_account()
-
         Wallet.objects.create(
             user=instance,
             address=address,
-            private_key=private_key
+            private_key=private_key,
+            saldo=0.0
         )
 
 
-# -----------------------------
-# ALUMNO EXTRA MODEL
-# (puede quedar si lo sigues usando)
-# -----------------------------
+# ==========================================================
+# ALUMNO EXTRA MODEL (opcional)
+# ==========================================================
 class Alumno(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField()
@@ -69,9 +94,9 @@ class Alumno(models.Model):
         return f"{self.user.username} ({self.matricula})"
 
 
-# -----------------------------
+# ==========================================================
 # TRANSACCIONES EN BLOCKCHAIN
-# -----------------------------
+# ==========================================================
 class Transaccion(models.Model):
     sender = models.CharField(max_length=100)
     receiver = models.CharField(max_length=100)
@@ -85,14 +110,13 @@ class Transaccion(models.Model):
         return f"{self.sender} → {self.receiver} ({self.amount} ALGOs)"
 
 
-# -----------------------------
-# ACTIVIDADES CREADAS
-# -----------------------------
+# ==========================================================
+# ACTIVIDAD
+# ==========================================================
 class Actividad(models.Model):
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     fecha_entrega = models.DateField(null=True, blank=True)
-
     recompensa = models.IntegerField(default=0)
 
     docente = models.ForeignKey(
@@ -107,9 +131,9 @@ class Actividad(models.Model):
         return self.titulo
 
 
-# -----------------------------
-# ACTIVIDADES ASIGNADAS A ESTUDIANTES
-# -----------------------------
+# ==========================================================
+# ACTIVIDAD ASIGNADA A ESTUDIANTES
+# ==========================================================
 class ActividadAsignada(models.Model):
     actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)
 
@@ -123,7 +147,6 @@ class ActividadAsignada(models.Model):
     entregada = models.BooleanField(default=False)
     finalizada = models.BooleanField(default=False)
 
-    # NUEVOS CAMPOS DE EVIDENCIA
     evidencia_texto = models.TextField(null=True, blank=True)
     evidencia_link = models.URLField(null=True, blank=True)
     fecha_entrega_real = models.DateTimeField(null=True, blank=True)

@@ -13,7 +13,15 @@
     {% endif %}
 </p>
 
-<p><strong>Balance:</strong> 
+<p><strong>Balance (consulta directa):</strong>
+    {% if user.wallet %}
+        {{ user.wallet.saldo }} ALGOs
+    {% else %}
+        No disponible
+    {% endif %}
+</p>
+
+<p><strong>Balance (en tiempo real):</strong> 
     <span id="wallet-balance">Cargando...</span>
 </p>
 
