@@ -7,10 +7,24 @@
 <div class="card-grid" style="margin-top:20px; display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
 
   {% for d in docentes %}
-  <div class="card" style="width:250px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 3px 6px rgba(0,0,0,0.15); text-align:center;">
+  <div class="card" style="width:260px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 3px 6px rgba(0,0,0,0.15); text-align:center;">
+
       <div class="emoji" style="font-size:40px;">👩‍🏫</div>
-      <h3 style="color:#007bb5;">{{ d.username }}</h3>
-      <p style="color:#333;">Rol: {{ d.role }}</p>
+
+      <h3 style="color:#007bb5; margin-bottom:5px;">{{ d.username }}</h3>
+
+      <p style="color:#333; margin:4px 0;"><strong>Rol:</strong> {{ d.role }}</p>
+
+      <!-- ⭐ NUEVO: RFC -->
+      <p style="color:#333; margin:4px 0;">
+        <strong>RFC:</strong> {{ d.rfc }}
+      </p>
+
+      <!-- ⭐ NUEVO: CORREO -->
+      <p style="color:#333; margin:4px 0;">
+        <strong>Email:</strong> {{ d.email_user }}
+      </p>
+
   </div>
   {% empty %}
   <p>No hay docentes registrados.</p>

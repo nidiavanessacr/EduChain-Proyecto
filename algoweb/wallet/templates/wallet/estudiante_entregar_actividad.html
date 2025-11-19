@@ -48,6 +48,13 @@
         Entregar: {{ asignacion.actividad.titulo }}
     </h2>
 
+    <!-- INFO DEL DOCENTE (NUEVO) -->
+    <p><strong>Docente:</strong> {{ asignacion.actividad.docente.username }}</p>
+    <p><strong>RFC del docente:</strong> {{ asignacion.actividad.docente.rfc }}</p>
+    <p><strong>Email del docente:</strong> {{ asignacion.actividad.docente.email_user }}</p>
+    <hr>
+    <!-- FIN NUEVO -->
+
     <div class="reward-box">
         Recompensa: {{ asignacion.actividad.recompensa }} ALGOs
     </div>

@@ -20,12 +20,30 @@
     <label>Contraseña:</label>
     <input type="password" name="password" required style="width:100%; padding:10px; margin-bottom:10px;">
 
+    <label>Correo electrónico:</label>
+    <input type="email" name="email" required style="width:100%; padding:10px; margin-bottom:10px;">
+
     <label>Rol:</label>
-    <select name="role" required style="width:100%; padding:10px; margin-bottom:20px;">
+    <select name="role" id="role-select" required
+            style="width:100%; padding:10px; margin-bottom:20px;">
       <option value="">Selecciona un rol</option>
       <option value="docente">Docente</option>
       <option value="estudiante">Estudiante</option>
     </select>
+
+    <!-- RFC del docente -->
+    <div id="campo-rfc" style="display:none;">
+      <label>RFC (13 caracteres):</label>
+      <input type="text" name="rfc" maxlength="13"
+             style="width:100%; padding:10px; margin-bottom:20px;">
+    </div>
+
+    <!-- Número de control del estudiante -->
+    <div id="campo-numcontrol" style="display:none;">
+      <label>Número de control (10 caracteres):</label>
+      <input type="text" name="numero_control" maxlength="10"
+             style="width:100%; padding:10px; margin-bottom:20px;">
+    </div>
 
     <button type="submit" style="background:#00a3e0; width:100%; padding:12px; color:white;
                                  border:none; border-radius:5px; font-weight:bold;">
@@ -33,4 +51,26 @@
     </button>
   </form>
 </div>
+
+<script>
+  const roleSelect = document.getElementById("role-select");
+  const campoRFC = document.getElementById("campo-rfc");
+  const campoNC = document.getElementById("campo-numcontrol");
+
+  roleSelect.addEventListener("change", function () {
+    const role = roleSelect.value;
+
+    // Ocultar ambos primero
+    campoRFC.style.display = "none";
+    campoNC.style.display = "none";
+
+    if (role === "docente") {
+      campoRFC.style.display = "block";
+    }
+    if (role === "estudiante") {
+      campoNC.style.display = "block";
+    }
+  });
+</script>
+
 {% endblock %}

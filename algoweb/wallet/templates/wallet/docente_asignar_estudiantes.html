@@ -14,12 +14,15 @@
     {% csrf_token %}
 
     {% for est in estudiantes %}
-      <div style="margin-bottom:10px;">
-        <label>
+      <div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+        <label style="font-weight:bold;">
           <input type="checkbox" name="estudiantes" value="{{ est.id }}"
                  {% if est.id in asignados %}checked{% endif %}>
           {{ est.username }}
         </label>
+
+        <p style="margin:4px 0;"><strong>Número de control:</strong> {{ est.numero_control }}</p>
+        <p style="margin:4px 0;"><strong>Correo:</strong> {{ est.email_user }}</p>
       </div>
     {% endfor %}
 

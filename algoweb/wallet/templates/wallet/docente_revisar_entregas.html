@@ -110,8 +110,18 @@
     <div class="card">
 
         <div class="emoji">👤</div>
+
         <h3 style="color:#007bb5;">{{ asignacion.estudiante.username }}</h3>
 
+        <!-- 🔹 DATOS DEL ESTUDIANTE -->
+        <p class="label">Número de Control:</p>
+        <p>{{ asignacion.estudiante.numero_control }}</p>
+
+        <p class="label">Correo:</p>
+        <p>{{ asignacion.estudiante.email_user }}</p>
+        <!-- FIN DATOS DEL ESTUDIANTE -->
+
+        <!-- ESTADO -->
         <p class="label">Estado:</p>
 
         {% if asignacion.finalizada %}
@@ -122,9 +132,11 @@
             <span class="status pendiente">Pendiente de entrega</span>
         {% endif %}
 
+        <!-- FECHA -->
         <p class="label">Fecha límite:</p>
         <p>{{ actividad.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}</p>
 
+        <!-- BOTÓN -->
         {% if asignacion.entregada and not asignacion.finalizada %}
         <a class="btn-primary btn-finish"
            href="{% url 'docente_marcar_finalizada' asignacion.id %}">

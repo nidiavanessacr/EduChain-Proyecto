@@ -18,14 +18,21 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=ROLES, default='estudiante')
 
+    # ⭐ Nuevos campos:
+    rfc = models.CharField(max_length=13, blank=True, null=True)
+    numero_control = models.CharField(max_length=10, blank=True, null=True)
+
+    # Email PERSONAL (no toca el email real del sistema)
+    email_user = models.EmailField(blank=True, null=True)
+
     def save(self, *args, **kwargs):
-        # Los superusers siempre serán administradores
         if self.is_superuser:
             self.role = "admin"
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
 
 
 # ==========================================================
@@ -41,7 +48,7 @@ class Wallet(models.Model):
         return f"Wallet de {self.user.username}"
 
     # ======================================================
-    # CONSULTAR SALDO REAL EN ALGOD CLIENT (propiedad útil)
+    # CONSULTAR SALDO REAL EN ALGOD CLIENT
     # ======================================================
     @property
     def saldo_algorand(self):
@@ -82,7 +89,7 @@ def crear_wallet_usuario(sender, instance, created, **kwargs):
 
 
 # ==========================================================
-# ALUMNO EXTRA MODEL (opcional)
+# ALUMNO (YA NO LO USAMOS, PERO LO RESPETO)
 # ==========================================================
 class Alumno(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -95,7 +102,7 @@ class Alumno(models.Model):
 
 
 # ==========================================================
-# TRANSACCIONES EN BLOCKCHAIN
+# TRANSACCIONES
 # ==========================================================
 class Transaccion(models.Model):
     sender = models.CharField(max_length=100)
@@ -132,7 +139,7 @@ class Actividad(models.Model):
 
 
 # ==========================================================
-# ACTIVIDAD ASIGNADA A ESTUDIANTES
+# ACTIVIDAD ASIGNADA
 # ==========================================================
 class ActividadAsignada(models.Model):
     actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)

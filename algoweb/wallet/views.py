@@ -126,6 +126,9 @@ def admin_estudiantes(request):
         "estudiantes": User.objects.filter(role="estudiante")
     })
 
+# ======================================
+#  VISTA MODIFICADA PARA LOS NUEVOS DATOS: RFC, No. CONTROL Y EMAIL
+# ======================================
 
 @login_required
 def admin_agregar_usuario(request):
@@ -137,18 +140,37 @@ def admin_agregar_usuario(request):
         password = request.POST.get("password")
         role = request.POST.get("role")
 
+        email_user = request.POST.get("email_user")
+        rfc = request.POST.get("rfc")
+        num_control = request.POST.get("num_control")
+
+        # Verificar usuario existente
         if User.objects.filter(username=username).exists():
             return render(request, "wallet/admin_agregar_usuario.html", {
                 "error": "El usuario ya existe."
             })
 
-        # Solo creamos el usuario; la wallet se crea automáticamente por la señal
+        # Crear usuario
         nuevo = User.objects.create_user(
             username=username,
             password=password,
-            role=role
+            role=role,
+            email_user=email_user
         )
 
+        # Si es docente → guardar RFC
+        if role == "docente":
+            nuevo.rfc = rfc
+
+        # Si es estudiante → guardar número de control
+        if role == "estudiante":
+            nuevo.num_control = num_control
+
+        nuevo.save()
+
+        # IMPORTANTE:
+        # ❌ NO crear Wallet aquí — se crea sola por el SIGNAL
+        
         messages.success(request, f"{role.capitalize()} creado correctamente.")
         return redirect("dashboard_admin")
 

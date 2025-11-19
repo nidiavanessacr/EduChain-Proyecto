@@ -46,6 +46,17 @@
     <div class="emoji">🏆</div>
     <h3 style="color:#007bb5;">{{ a.actividad.titulo }}</h3>
 
+    <!-- INFO DEL DOCENTE (NUEVO) -->
+    <p class="label">Docente:</p>
+    <p>{{ a.actividad.docente.username }}</p>
+
+    <p class="label">RFC del docente:</p>
+    <p>{{ a.actividad.docente.rfc }}</p>
+
+    <p class="label">Correo del docente:</p>
+    <p>{{ a.actividad.docente.email_user }}</p>
+    <!-- FIN NUEVO -->
+
     <p class="label">Recompensa:</p>
     <p>{{ a.actividad.recompensa }} ALGOs</p>
 

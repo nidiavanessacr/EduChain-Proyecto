@@ -31,6 +31,7 @@
       <tr>
         <th>Usuario</th>
         <th>Email</th>
+        <th>Número de Control</th>   <!-- ⭐ Nueva columna -->
         <th>Acciones</th>
       </tr>
     </thead>
@@ -39,7 +40,8 @@
       {% for est in estudiantes %}
       <tr class="row">
         <td>{{ est.username }}</td>
-        <td>{{ est.email }}</td>
+        <td>{{ est.email_user }}</td>           <!-- ⭐ Email correcto -->
+        <td>{{ est.numero_control }}</td>       <!-- ⭐ Número de control -->
         <td>
           <a onclick="return confirm('¿Eliminar estudiante {{ est.username }}?')" 
              href="{% url 'admin_eliminar_usuario' est.id %}"

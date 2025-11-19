@@ -67,12 +67,22 @@
     <div class="emoji">📄</div>
     <h3 style="color:#007bb5;">{{ asignacion.actividad.titulo }}</h3>
 
+    <!-- INFO DEL DOCENTE (NUEVO) -->
+    <p class="label">Docente:</p>
+    <p>{{ asignacion.actividad.docente.username }}</p>
+
+    <p class="label">RFC del docente:</p>
+    <p>{{ asignacion.actividad.docente.rfc }}</p>
+
+    <p class="label">Correo del docente:</p>
+    <p>{{ asignacion.actividad.docente.email_user }}</p>
+    <!-- FIN NUEVO -->
+
     <p class="label">Descripción:</p>
     <p>{{ asignacion.actividad.descripcion }}</p>
 
     <p class="label">Fecha de entrega:</p>
     <p>{{ asignacion.actividad.fecha_entrega|date:"d \\d\\e F \\d\\e Y" }}</p>
-
 
     <p class="label">Recompensa:</p>
     <p>{{ asignacion.actividad.recompensa }} ALGOs</p>
